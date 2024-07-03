@@ -10,4 +10,4 @@ updates:
     schedule:
       interval: "daily"
       time: "21:00"
-      time-zone: "America/Los_Angeles"
+      timezone: "America/Los_Angeles"
