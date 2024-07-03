@@ -6,7 +6,7 @@
 version: 2
 updates:
   - package-ecosystem: "gitsubmodule"
-    directory: "/addins" 
+    directory: "/" 
     schedule:
       interval: "daily"
       time: "21:00"
