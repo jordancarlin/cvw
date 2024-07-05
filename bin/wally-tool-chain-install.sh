@@ -245,6 +245,7 @@ else
     echo -e "${SUCCESS_COLOR}elf2hex already up to date${ENDC}"
 fi
 
+df -h
 
 # QEMU (https://www.qemu.org/docs/master/system/target-riscv.html)
 # QEMU is an open source machine emulator and virtualizer capable of emulating RISC-V
