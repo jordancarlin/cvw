@@ -68,7 +68,7 @@ elif [ "$FAMILY" = ubuntu ]; then
     GNU_PACKAGES="autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev libexpat1-dev ninja-build libglib2.0-dev libslirp-dev"
     QEMU_PACKAGES="libfdt-dev libpixman-1-dev"
     SPIKE_PACKAGES="device-tree-compiler libboost-regex-dev libboost-system-dev"
-    VERILATOR_PACKAGES="help2man perl g++ clang ccache libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlib1g"
+    VERILATOR_PACKAGES="help2man perl g++ clang ccache libunwind-dev libgoogle-perftools-dev numactl perl-doc libfl2 libfl-dev zlib1g"
     SAIL_PACKAGES="opam z3"
     BUILDROOT_PACKAGES="ncurses-base ncurses-bin libncurses-dev gfortran"
     # Extra packages not availale in Ubuntu 20.04, nice for Verilator
