@@ -19,11 +19,11 @@ jobs:
       - name: /usr/bin
         run: |
             cd /usr/bin
-            sudo du -h --max-depth=1 | sort -h
+            sudo ls -lh | sort -h
       - name: /usr/local
         run: |
             cd /usr/local
-            sudo du -h --max-depth=1 | sort -h
+            sudo du -h --max-depth=2 | sort -h
       - name: /usr/share
         run: |
             cd /usr/share
@@ -36,3 +36,29 @@ jobs:
         run: |
             cd /opt/hostedtoolcache
             sudo du -h --max-depth=1 | sort -h
+      - name: Free up storage
+        run: |
+            sudo rm -rf /usr/local/lib/android &> /dev/null
+            sudo rm -rf /usr/local/.ghcup &> /dev/null
+            sudo rm -rf /usr/share/dotnet &> /dev/null
+            sudo rm -rf /usr/share/swift &> /dev/null
+            sudo rm -rf /opt/ghc &> /dev/null
+            sudo rm -rf /opt/hostedtoolcache/CodeQL &> /dev/null
+            sudo rm -rf /opt/hostedtoolcache/go &> /dev/null
+            sudo docker image prune --all --force &> /dev/null
+            sudo apt-get purge -y \
+              '^llvm-.*' \
+              'php.*' \
+              '^mongodb-.*' \
+              '^mysql-.*' \
+              azure-cli \
+              google-cloud-cli \
+              google-chrome-stable \
+              firefox \
+              powershell \
+              microsoft-edge-stable \
+              mono-devel \
+              &> /dev/null
+            sudo apt-get autoremove -y &> /dev/null
+            sudo apt-get clean &> /dev/null
+            df -h
