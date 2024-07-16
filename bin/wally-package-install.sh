@@ -48,7 +48,7 @@ fi
 if [ "$FAMILY" = rhel ]; then
     PACKAGE_MANAGER="dnf"
     UPDATE_COMMAND="sudo dnf update -y"
-    GENERAL_PACKAGES="git make cmake python3.12 python3-pip curl wget ftp tar pkgconf-pkg-config dialog mutt ssmtp"
+    GENERAL_PACKAGES="which git make cmake python3.12 python3-pip curl wget ftp tar pkgconf-pkg-config dialog mutt ssmtp"
     GNU_PACKAGES="autoconf automake  libmpc-devel mpfr-devel gmp-devel gawk bison flex texinfo gperf libtool patchutils bc gcc gcc-c++ zlib-devel expat-devel libslirp-devel"
     QEMU_PACKAGES="glib2-devel libfdt-devel pixman-devel bzip2 ninja-build"
     SPIKE_PACKAGES="dtc boost-regex boost-system"
