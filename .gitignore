@@ -1,4 +1,5 @@
 **/work*
+!.github/*
 **/wally_*.log
 /**/obj_dir*
 /**/gmon*
