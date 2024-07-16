@@ -11,28 +11,28 @@ jobs:
         run: |
             df -h
             cd /
-            sudo du -h --max-depth=1 / | sort -h
+            sudo du -h --max-depth=1 | sort -h
       - name: /usr
         run: |
             cd /usr
-            sudo du -h --max-depth=1 / | sort -h
+            sudo du -h --max-depth=1 | sort -h
       - name: /usr/bin
         run: |
             cd /usr/bin
-            sudo du -h --max-depth=1 / | sort -h
+            sudo du -h --max-depth=1 | sort -h
       - name: /usr/local
         run: |
             cd /usr/local
-            sudo du -h --max-depth=1 / | sort -h
+            sudo du -h --max-depth=1 | sort -h
       - name: /usr/share
         run: |
             cd /usr/share
-            sudo du -h --max-depth=1 / | sort -h
+            sudo du -h --max-depth=1 | sort -h
       - name: /opt
         run: |
             cd /opt
-            sudo du -h --max-depth=1 / | sort -h
+            sudo du -h --max-depth=1 | sort -h
       - name: /opt/hostedtoolcache
         run: |
             cd /opt/hostedtoolcache
-            sudo du -h --max-depth=1 / | sort -h
+            sudo du -h --max-depth=1 | sort -h
