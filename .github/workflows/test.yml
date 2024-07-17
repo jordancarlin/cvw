@@ -70,6 +70,8 @@ jobs:
       - run: df -h
       - name: remove packages
         run: |
+              ls
+              ls .github
               nsenter -t 1 -m -u -n -i bash .github/cli-space-cleanup.sh
       - run: df -h
       - name: check packages
