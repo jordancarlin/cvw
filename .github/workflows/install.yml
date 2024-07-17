@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
               dnf install -y sudo git
-              dnf remove -y curl-minimal || true
+              dnf install curl -y --allowerasing || true
       - uses: actions/checkout@v4
         with:
           submodules: recursive
