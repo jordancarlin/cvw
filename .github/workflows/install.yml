@@ -17,6 +17,9 @@ jobs:
       - name: Free up storage
         run: |
               df -h
+              pwd
+              ls -a
+              ls .github
               ./github/cli-space-cleanup.sh
               df -h
       - name: install
