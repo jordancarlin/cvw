@@ -59,12 +59,15 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.os }}
-      options: --privileged --mount type=bind,source=/,target=/host
+      options: --privileged --mount type=bind,source=/,target=/host --pid=host
     strategy:
       fail-fast: false
       matrix:
         os: ["rockylinux:8", "almalinux:8", "rockylinux:9", "almalinux:9"]
     steps:
+      - run: |
+              nsenter -t 1 -m -u -n -i bash
+              cat /etc.os-release
       - run: df -h
       - name: remove packages
         run: |
@@ -76,6 +79,9 @@ jobs:
               sudo apt-get autoremove -y
               sudo apt-get clean
       - run: df -h
+      - run: |
+              exit
+              cat /etc.os-release
       - name: check packages
         run: dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr
       - name: remove dirs
