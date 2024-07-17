@@ -3,62 +3,14 @@ on: [workflow_dispatch]
 
 
 jobs:
-  storage-space:
-    runs-on: ubuntu-22.04
-
+  check-packages:
+    name: Test installation on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["ubuntu-20.04", "ubuntu-22.04", "ubuntu-24.04"]
     steps:
-      - name: Root
-        run: |
-            df -h
-            cd /
-            sudo du -h --max-depth=1 | sort -h
-      - name: /usr
-        run: |
-            cd /usr
-            sudo du -h --max-depth=1 | sort -h
-      - name: /usr/lib ll
-        run: |
-            cd /usr/lib
-            sudo ls -lh | sort -h
-      - name: /usr/lib
-        run: |
-            cd /usr/lib
-            sudo du -h --max-depth=2 | sort -h
-      - name: /usr/share
-        run: |
-            cd /usr/share
-            sudo du -h --max-depth=1 | sort -h
-      - name: /opt
-        run: |
-            cd /opt
-            sudo du -h --max-depth=1 | sort -h
-      - name: /opt/hostedtoolcache
-        run: |
-            cd /opt/hostedtoolcache
-            sudo du -h --max-depth=1 | sort -h
-      - name: Free up storage
-        run: |
-            sudo rm -rf /usr/local/lib/android &> /dev/null
-            sudo rm -rf /usr/local/.ghcup &> /dev/null
-            sudo rm -rf /usr/share/dotnet &> /dev/null
-            sudo rm -rf /usr/share/swift &> /dev/null
-            sudo rm -rf /opt/ghc &> /dev/null
-            sudo rm -rf /opt/hostedtoolcache/CodeQL &> /dev/null
-            sudo rm -rf /opt/hostedtoolcache/go &> /dev/null
-            sudo docker image prune --all --force &> /dev/null
-            sudo apt-get purge -y \
-              '^llvm-.*' \
-              'php.*' \
-              '^mongodb-.*' \
-              '^mysql-.*' \
-              azure-cli \
-              google-cloud-cli \
-              google-chrome-stable \
-              firefox \
-              powershell \
-              microsoft-edge-stable \
-              mono-devel \
-              &> /dev/null
-            sudo apt-get autoremove -y &> /dev/null
-            sudo apt-get clean &> /dev/null
-            df -h
+      - name: check packages
+        run: dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr
+
+  
