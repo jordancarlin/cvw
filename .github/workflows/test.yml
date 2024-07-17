@@ -69,7 +69,10 @@ jobs:
       - uses: actions/checkout@v4
       - run: df -h
       - name: remove packages
-        run: nsenter -t 1 -m -u -n -i bash /__w/cvw/cvw/.github/cli-space-cleanup.sh
+        run: |
+              cd .github
+              ls
+              nsenter -t 1 -m -u -n -i bash cli-space-cleanup.sh #-c "sudo apt-get purge -y google-cloud-cli || true; sudo apt-get autoremove -y; sudo apt-get clean"
       - run: df -h
       - name: check packages
         run: dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr
