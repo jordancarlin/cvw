@@ -54,7 +54,7 @@ jobs:
           submodules: recursive
       - run: dnf install -y python3.12 python3 pip
       - run: mkdir -p /opt/riscv
-      - run: python3 -m venv /opt/riscv
+      - run: python3.12 -m venv /opt/riscv
       - run: |
               source /opt/riscv/bin/activate
               pip install --upgrade pip
