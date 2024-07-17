@@ -17,10 +17,7 @@ jobs:
       - name: Free up storage
         run: |
               df -h
-              pwd
-              ls -a
-              ls .github
-              ./github/cli-space-cleanup.sh
+              ./.github/cli-space-cleanup.sh
               df -h
       - name: install
         run: sudo ./bin/wally-tool-chain-install.sh
@@ -38,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.os }}
-      options: --privileged --mount type=bind,source=/,target=/host
+      options: --privileged --mount type=bind,source=/,target=/host --pid=host --entrypoint /bin/bash
     strategy:
       fail-fast: false
       matrix:
