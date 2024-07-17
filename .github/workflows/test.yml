@@ -16,13 +16,13 @@ jobs:
         run: |
             cd /usr
             sudo du -h --max-depth=1 | sort -h
-      - name: /usr/lib
+      - name: /usr/lib ll
         run: |
             cd /usr/lib
             sudo ls -lh | sort -h
-      - name: /usr/local
+      - name: /usr/lib
         run: |
-            cd /usr/local
+            cd /usr/lib
             sudo du -h --max-depth=2 | sort -h
       - name: /usr/share
         run: |
