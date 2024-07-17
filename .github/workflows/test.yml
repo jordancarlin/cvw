@@ -65,21 +65,12 @@ jobs:
       matrix:
         os: ["rockylinux:8", "almalinux:8", "rockylinux:9", "almalinux:9"]
     steps:
+      - uses: actions/checkout@v4
       - run: df -h
       - name: remove packages
         run: |
-              nsenter -t 1 -m -u -n -i bash
-              removePacks=( '^llvm-.*' 'php.*' '^mongodb-.*' '^mysql-.*' '^dotnet-sdk-.*' 'azure-cli' 'google-cloud-cli' 'google-chrome-stable' 'firefox' 'powershell*' 'microsoft-edge-stable' 'mono-devel' )
-              for pack in "${removePacks[@]}"; do
-                echo "REMOVING ${pack}"
-                /host/usr/bin/apt-get purge -y $pack || true
-              done
-              sudo apt-get autoremove -y
-              sudo apt-get clean
+              nsenter -t 1 -m -u -n -i bash .github/cli-space-cleanup.sh
       - run: df -h
-      - run: |
-              exit
-              cat /etc.os-release
       - name: check packages
         run: dpkg-query -Wf '${Installed-Size}\t${Package}\n' | sort -nr
       - name: remove dirs
