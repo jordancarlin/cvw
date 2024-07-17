@@ -11,14 +11,14 @@ jobs:
       matrix:
         os: ["ubuntu-20.04", "ubuntu-22.04", "ubuntu-24.04"]
     steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Free up storage
         run: |
               df -h
               ./github/cli-space-cleanup.sh
               df -h
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
       - name: install
         run: sudo ./bin/wally-tool-chain-install.sh
       - name: make tests
@@ -45,14 +45,14 @@ jobs:
         run: |
               dnf install -y sudo git
               dnf remove -y curl-minimal || true
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Free up storage
         run: |
               df -h
               nsenter -t 1 -m -u -n -i bash -c "$(cat .github/cli-space-cleanup.sh)"
               df -h
-      - uses: actions/checkout@v4
-        with:
-            submodules: recursive
       - name: install
         run: ./bin/wally-tool-chain-install.sh
       - name: make tests
