@@ -1,0 +1,65 @@
+name: Installation
+
+on: [workflow_dispatch]
+
+jobs:
+  ubuntu_install:
+    name: Test installation on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-20.04", "ubuntu-22.04", "ubuntu-24.04"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Free up storage
+        run: |
+              df -h
+              ./.github/cli-space-cleanup.sh
+              df -h
+      - name: install
+        run: sudo ./bin/wally-tool-chain-install.sh
+      - name: make tests
+        run: |
+              source setup.sh
+              make
+      - name: regresssion
+        run: |
+              source setup.sh
+              regression-wally
+
+  rhel_family_install:
+    name: Test installation on ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.os }}
+      options: --privileged --mount type=bind,source=/,target=/host --pid=host --entrypoint /bin/bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["rockylinux:8", "rockylinux:9", "almalinux:8", "almalinux:9"]
+    steps:
+      - name: Install dependencies
+        run: |
+              dnf install -y sudo git
+              dnf install curl -y --allowerasing || true
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Free up storage
+        run: |
+              df -h
+              nsenter -t 1 -m -u -n -i bash -c "$(cat .github/cli-space-cleanup.sh)"
+              df -h
+      - name: install
+        run: ./bin/wally-tool-chain-install.sh
+      - name: make tests
+        run: |
+              source setup.sh
+              make
+      - name: regresssion
+        run: |
+              source setup.sh
+              regression-wally

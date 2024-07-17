@@ -234,6 +234,7 @@ else
     echo -e "${SUCCESS_COLOR}elf2hex already up to date${ENDC}"
 fi
 
+df -h
 
 # QEMU (https://www.qemu.org/docs/master/system/target-riscv.html)
 # QEMU is an open source machine emulator and virtualizer capable of emulating RISC-V
@@ -355,6 +356,7 @@ pip3 install git+https://github.com/riscv/riscof.git
 # OSU Skywater 130 cell library (https://foss-eda-tools.googlesource.com/skywater-pdk/libs/sky130_osu_sc_t12)
 # The OSU Skywater 130 cell library is a standard cell library that is used to synthesize Wally.
 section_header "Installing/Updating OSU Skywater 130 cell library"
+******************************************************************\n${ENDC}"
 STATUS="OSU Skywater 130 cell library"
 mkdir -p "$RISCV"/cad/lib
 cd "$RISCV"/cad/lib
