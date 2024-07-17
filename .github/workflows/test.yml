@@ -65,6 +65,7 @@ jobs:
       matrix:
         os: ["rockylinux:8", "almalinux:8", "rockylinux:9", "almalinux:9"]
     steps:
+      - run: dnf install sudo git
       - uses: actions/checkout@v4
       - run: df -h
       - name: remove packages
