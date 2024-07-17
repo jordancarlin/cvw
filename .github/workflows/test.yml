@@ -57,9 +57,12 @@ jobs:
   clean-rhel:
     name: clean ${{ matrix.os }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     container:
       image: ${{ matrix.os }}
-      options: --privileged --mount type=bind,source=/,target=/host --pid=host
+      options: --privileged --mount type=bind,source=/,target=/host --pid=host --entrypoint /bin/bash
     strategy:
       fail-fast: false
       matrix:
