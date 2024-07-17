@@ -67,7 +67,7 @@ jobs:
     steps:
       - run: |
               nsenter -t 1 -m -u -n -i bash
-              cat /etc.os-release
+              cat /etc/os-release
       - run: df -h
       - name: remove packages
         run: |
