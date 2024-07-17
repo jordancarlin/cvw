@@ -28,6 +28,7 @@ jobs:
       - name: make tests
         run: |
               source setup.sh
+              source /opt/riscv/bin/activate
               make
       - name: regresssion
         run: |
@@ -62,6 +63,7 @@ jobs:
       - name: make tests
         run: |
               source setup.sh
+              source /opt/riscv/bin/activate
               make
       - name: regresssion
         run: |

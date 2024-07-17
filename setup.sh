@@ -34,6 +34,11 @@ echo \$WALLY set to "${WALLY}"
 export PATH=$WALLY/bin:$PATH
 
 # load site licenses and tool locations
-source "${RISCV}"/site-setup.sh
+if [ -f "${RISCV}"/site-setup.sh ]; then
+    source "${RISCV}"/site-setup.sh
+else
+    echo "No site-setup.sh found in \$RISCV directory. Edit setup.sh to point to your custom site-setup.sh."
+    exit 1;
+fi
 
 echo "setup done"
