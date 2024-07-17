@@ -17,7 +17,7 @@ jobs:
       - name: Free up storage
         run: |
               df -h
-              ./.github/cli-space-cleanup.sh
+              # ./.github/cli-space-cleanup.sh
               df -h
       - run: mkdir -p /opt/riscv
       - run: python3 -m venv /opt/riscv
