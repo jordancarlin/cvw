@@ -3,6 +3,8 @@ on: [workflow_dispatch]
 defaults:
   run:
     shell: bash
+env:
+  TERM: xterm-256color
 
 jobs:
   ubuntu_install:
