@@ -60,6 +60,8 @@ jobs:
               pip install -r requirements.txt
       - name: make tests
         run: |
+              pwd
+              ls
               source setup.sh
               source /opt/riscv/bin/activate
               make || true
