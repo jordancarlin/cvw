@@ -58,7 +58,6 @@ sudo rm -rf /usr/lib/mono
 sudo rm -rf /usr/lib/R
 sudo rm -rf /usr/lib/postgresql
 sudo rm -rf /usr/lib/heroku
-# sudo rm -rf /usr/lib/llvm*
 sudo rm -rf /usr/lib/firefox
 sudo rm -rf /opt/hostedtoolcache
 
