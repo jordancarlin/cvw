@@ -1,0 +1,24 @@
+name: Test Docker
+
+on: [workflow_dispatch]
+
+jobs:
+  rhel_family_install:
+    name: Test on ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.os }}
+      options: --privileged --mount type=bind,source=/,target=/host --pid=host --entrypoint /bin/bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["rockylinux:8", "rockylinux:9", "almalinux:8", "almalinux:9"]
+    steps:
+      - name: Install dependencies
+        run: |
+              dnf install -y git
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: setup
+        run: source setup.sh
