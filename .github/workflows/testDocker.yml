@@ -1,13 +1,15 @@
 name: Test Docker
-
 on: [workflow_dispatch]
-
+defaults:
+  run:
+    shell: bash
 jobs:
   rhel_family_install:
     name: Test on ${{ matrix.os }}
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.os }}
+      options: --privileged --mount type=bind,source=/,target=/host --pid=host --entrypoint /bin/bash
     strategy:
       fail-fast: false
       matrix:
@@ -20,5 +22,4 @@ jobs:
         with:
           submodules: recursive
       - name: setup
-        shell: bash
         run: source setup.sh
