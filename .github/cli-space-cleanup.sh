@@ -36,31 +36,31 @@ sudo apt-get autoremove -y || true
 sudo apt-get clean || true
 
 # Remove unnecessary directories
-# sudo rm -rf /usr/local/lib/android
-# sudo rm -rf /usr/share/dotnet
-# sudo rm -rf /usr/share/swift
-# sudo rm -rf /usr/share/miniconda
-# sudo rm -rf /usr/share/az*
-# sudo rm -rf /usr/share/gradle-*
-# sudo rm -rf /usr/share/sbt
-# sudo rm -rf /opt/ghc
-# sudo rm -rf /usr/local/.ghcup
-# sudo rm -rf /usr/local/share/powershell
-# sudo rm -rf /usr/local/lib/node_modules
-# sudo rm -rf /usr/local/julia*
-# sudo rm -rf /usr/local/share/chromium
-# sudo rm -rf /usr/local/share/vcpkg
-# sudo rm -rf /usr/local/games
-# sudo rm -rf /usr/local/sqlpackage
-# sudo rm -rf /usr/lib/google-cloud-sdk
-# sudo rm -rf /usr/lib/jvm
-# sudo rm -rf /usr/lib/mono
-# sudo rm -rf /usr/lib/R
-# sudo rm -rf /usr/lib/postgresql
-# sudo rm -rf /usr/lib/heroku
+sudo rm -rf /usr/local/lib/android
+sudo rm -rf /usr/share/dotnet
+sudo rm -rf /usr/share/swift
+sudo rm -rf /usr/share/miniconda
+sudo rm -rf /usr/share/az*
+sudo rm -rf /usr/share/gradle-*
+sudo rm -rf /usr/share/sbt
+sudo rm -rf /opt/ghc
+sudo rm -rf /usr/local/.ghcup
+sudo rm -rf /usr/local/share/powershell
+sudo rm -rf /usr/local/lib/node_modules
+sudo rm -rf /usr/local/julia*
+sudo rm -rf /usr/local/share/chromium
+sudo rm -rf /usr/local/share/vcpkg
+sudo rm -rf /usr/local/games
+sudo rm -rf /usr/local/sqlpackage
+sudo rm -rf /usr/lib/google-cloud-sdk
+sudo rm -rf /usr/lib/jvm
+sudo rm -rf /usr/lib/mono
+sudo rm -rf /usr/lib/R
+sudo rm -rf /usr/lib/postgresql
+sudo rm -rf /usr/lib/heroku
 # sudo rm -rf /usr/lib/llvm*
-# sudo rm -rf /usr/lib/firefox
-# sudo rm -rf /opt/hostedtoolcache
+sudo rm -rf /usr/lib/firefox
+sudo rm -rf /opt/hostedtoolcache
 
 # Clean up docker images
 sudo docker image prune --all --force
