@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.os }}
-      options: --privileged --mount type=bind,source=/,target=/host --pid=host
+      options: --privileged --mount type=bind,source=/,target=/host
     strategy:
       fail-fast: false
       matrix:
