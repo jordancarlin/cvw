@@ -98,7 +98,7 @@ if [ "${1}" = "--check" ]; then
             dpkg -l "$pack" | grep "ii" > /dev/null || (echo -e "${FAIL_COLOR}Missing packages detected (${WARNING_COLOR}$pack${FAIL_COLOR}). Run as root to auto-install or run wally-package-install.sh first." && exit 1)
         done
     fi
-    echo -e "${OK_COLOR}All required packages detected.${ENDC}"
+    echo -e "${OK_COLOR}All required packages successfully detected.${ENDC}"
 else
     # Check if root, otherwise exit with error message
     [ "${EUID:=$(id -u)}" -ne 0 ] && echo -e "\n${FAIL_COLOR}Must be run as root${ENDC}" && exit 1

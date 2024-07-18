@@ -61,6 +61,13 @@ section_header() {
     printf "%$(tput cols)s${ENDC}" | tr ' ' '#'
 }
 
+logger() {
+    local logFile=$RISCV/logs/$1.txt
+    shift
+    outputMatch=$*
+    tee -a "$logFile" | grep -iE --color=never "error|warning|success|fail|${outputMatch}"
+}
+
 set -e # break on error
 trap error ERR # run error handler on error
 STATUS="setup" # keep track of what part of the installation is running for error messages
@@ -97,9 +104,9 @@ echo "Installation path: $RISCV"
 # Install/update system packages if root. Otherwise, check that packages are already installed.
 STATUS="system packages"
 if [ "$ROOT" = true ]; then
-    source "${dir}"/wally-package-install.sh
+    source "${dir}"/wally-package-install.sh 2>&1 | logger system-packages
 else
-    source "${dir}"/wally-package-install.sh --check
+    source "${dir}"/wally-package-install.sh --check 2>&1 | logger system-packages
 fi
 
 # Enable newer version of gcc for older distros (required for QEMU/Verilator)
@@ -122,9 +129,9 @@ cd "$RISCV"
 if [ ! -e "$RISCV"/riscv-python/bin/activate ]; then
     # If python3.12 is avaiable, use it. Otherise, use whatever version of python3 is installed.
     if [ "$(which python3.12)" ]; then
-        python3.12 -m venv riscv-python
+        python3.12 -m venv riscv-python 2>&1 | logger python
     else
-        python3 -m venv riscv-python
+        python3 -m venv riscv-python 2>&1 | logger python
     fi
     echo -e "${OK_COLOR}Python virtual environment created.\nInstalling pip packages.${ENDC}"
 else
@@ -135,13 +142,13 @@ source "$RISCV"/riscv-python/bin/activate # activate python virtual environment
 
 # Install python packages
 STATUS="python packages"
-pip install -U pip
-pip install -U sphinx sphinx_rtd_theme matplotlib scipy scikit-learn adjustText lief markdown pyyaml testresources riscv_config
-pip install -U riscv_isac # to generate new tests, such as quads with fp_dataset.py
+pip install -U pip 2>&1 | logger python
+pip install -U sphinx sphinx_rtd_theme matplotlib scipy scikit-learn adjustText lief markdown pyyaml testresources riscv_config 2>&1 | logger python
+pip install -U riscv_isac 2>&1 | logger python # to generate new tests, such as quads with fp_dataset.py
 
 # z3 is needed for sail and not availabe from dnf for rhel 8
 if [ "$RHEL_VERSION" = 8 ]; then
-    pip install -U z3-solver
+    pip install -U z3-solver 2>&1 | logger python
 fi
 
 source "$RISCV"/riscv-python/bin/activate # reload python virtual environment
@@ -203,8 +210,8 @@ if [[ ((! -e riscv-gnu-toolchain) && ($(git clone https://github.com/riscv/riscv
     cd riscv-gnu-toolchain
     git reset --hard && git clean -f && git checkout master && git pull
     git pull
-    ./configure --prefix="${RISCV}" --with-multilib-generator="rv32e-ilp32e--;rv32i-ilp32--;rv32im-ilp32--;rv32iac-ilp32--;rv32imac-ilp32--;rv32imafc-ilp32f--;rv32imafdc-ilp32d--;rv64i-lp64--;rv64ic-lp64--;rv64iac-lp64--;rv64imac-lp64--;rv64imafdc-lp64d--;rv64im-lp64--;"
-    make -j ${NUM_THREADS}
+    ./configure --prefix="${RISCV}" --with-multilib-generator="rv32e-ilp32e--;rv32i-ilp32--;rv32im-ilp32--;rv32iac-ilp32--;rv32imac-ilp32--;rv32imafc-ilp32f--;rv32imafdc-ilp32d--;rv64i-lp64--;rv64ic-lp64--;rv64iac-lp64--;rv64imac-lp64--;rv64imafdc-lp64d--;rv64im-lp64--;"  2>&1 | logger riscv-gnu-toolchain
+    make -j ${NUM_THREADS} 2>&1 | logger riscv-gnu-toolchain stamps
     echo -e "${SUCCESS_COLOR}RISC-V GNU Toolchain successfully installed${ENDC}"
 else
     echo -e "${SUCCESS_COLOR}RISC-V GNU Toolchain already up to date${ENDC}"
@@ -226,9 +233,9 @@ if [[ ((! -e elf2hex) && ($(git clone https://github.com/sifive/elf2hex.git) || 
     cd elf2hex
     git reset --hard && git clean -f && git checkout master && git pull
     autoreconf -i
-    ./configure --target=riscv64-unknown-elf --prefix="$RISCV"
-    make
-    make install
+    ./configure --target=riscv64-unknown-elf --prefix="$RISCV" 2>&1 | logger elf2hex
+    make -j ${NUM_THREADS} 2>&1 | logger elf2hex
+    make install 2>&1 | logger elf2hex
     echo -e "${SUCCESS_COLOR}elf2hex successfully installed${ENDC}"
 else
     echo -e "${SUCCESS_COLOR}elf2hex already up to date${ENDC}"
@@ -244,9 +251,9 @@ cd "$RISCV"
 if [[ ((! -e qemu) && ($(git clone --recurse-submodules -j ${NUM_THREADS} https://github.com/qemu/qemu) || true)) || ($(cd qemu; git fetch; git rev-parse HEAD) != $(cd qemu; git rev-parse origin/master)) || (! -e $RISCV/include/qemu-plugin.h) ]]; then
     cd qemu
     git reset --hard && git clean -f && git checkout master && git pull --recurse-submodules -j ${NUM_THREADS}
-    ./configure --target-list=riscv64-softmmu --prefix="$RISCV"
-    make -j ${NUM_THREADS}
-    make install
+    ./configure --target-list=riscv64-softmmu --prefix="$RISCV" 2>&1 | logger qemu
+    make -j ${NUM_THREADS} 2>&1 | logger qemu
+    make install 2>&1 | logger qemu
     echo -e "${SUCCESS_COLOR}QEMU successfully installed${ENDC}"
 else
     echo -e "${SUCCESS_COLOR}QEMU already up to date${ENDC}"
@@ -263,9 +270,9 @@ if [[ ((! -e riscv-isa-sim) && ($(git clone https://github.com/riscv-software-sr
     git reset --hard && git clean -f && git checkout master && git pull
     mkdir -p build
     cd build
-    ../configure --prefix="$RISCV"
-    make -j ${NUM_THREADS}
-    make install
+    ../configure --prefix="$RISCV" 2>&1 | logger spike
+    make -j ${NUM_THREADS} 2>&1 | logger spike
+    make install 2>&1 | logger spike
     echo -e "${SUCCESS_COLOR}Spike successfully installed${ENDC}"
 else
     echo -e "${SUCCESS_COLOR}Spike already up to date${ENDC}"
@@ -283,10 +290,10 @@ if [[ ((! -e verilator) && ($(git clone https://github.com/verilator/verilator) 
     unset VERILATOR_ROOT     # For bash
     cd verilator
     git reset --hard && git clean -f && git checkout master && git pull
-    autoconf         # Create ./configure script
-    ./configure --prefix="$RISCV"     # Configure and create Makefile
-    make -j ${NUM_THREADS}  # Build Verilator itself (if error, try just 'make')
-    make install
+    autoconf 2>&1 | logger spike         # Create ./configure script
+    ./configure --prefix="$RISCV" 2>&1 | logger spike   # Configure and create Makefile
+    make -j ${NUM_THREADS}  2>&1 | logger spike # Build Verilator itself (if error, try just 'make')
+    make install 2>&1 | logger spike
     echo -e "${SUCCESS_COLOR}Verilator successfully installed${ENDC}"
 else
     echo -e "${SUCCESS_COLOR}Verilator already up to date${ENDC}"
@@ -317,13 +324,13 @@ fi
 # but a binary release of it should be available soon, removing the need to use opam.
 section_header "Installing/Updating Sail Compiler"
 STATUS="Sail Compiler"
-OPAMROOTISOK=1 # Silence warnings about running opam as root
+export OPAMROOTISOK=1 # Silence warnings about running opam as root
 cd "$RISCV"
 opam init -y --disable-sandboxing
-opam update -y
-opam upgrade -y
+opam update -y 2>&1 | logger sail
+opam upgrade -y 2>&1 | logger sail
 opam switch create 5.1.0 || opam switch set 5.1.0
-opam install sail -y
+opam install sail -y 2>&1 | logger sail
 echo -e "${SUCCESS_COLOR}Sail Compiler successfully installed/updated${ENDC}"
 
 # RISC-V Sail Model (https://github.com/riscv/sail-riscv)
@@ -331,12 +338,12 @@ echo -e "${SUCCESS_COLOR}Sail Compiler successfully installed/updated${ENDC}"
 section_header "Installing/Updating RISC-V Sail Model"
 STATUS="RISC-V Sail Model"
 if [[ ((! -e sail-riscv) && ($(git clone https://github.com/riscv/sail-riscv.git) || true)) || ($(cd sail-riscv; git fetch; git rev-parse HEAD) != $(cd sail-riscv; git rev-parse origin/master)) || (! -e $RISCV/bin/riscv_sim_RV32) ]]; then
-    eval $(opam config env)
+    eval "$(opam config env)"
     cd sail-riscv
     git reset --hard && git clean -f && git checkout master && git pull
     export OPAMCLI=2.0  # Sail is not compatible with opam 2.1 as of 4/16/24
-    ARCH=RV64 make -j ${NUM_THREADS} c_emulator/riscv_sim_RV64
-    ARCH=RV32 make -j ${NUM_THREADS} c_emulator/riscv_sim_RV32
+    ARCH=RV64 make -j ${NUM_THREADS} c_emulator/riscv_sim_RV64 2>&1 | logger sail-riscv
+    ARCH=RV32 make -j ${NUM_THREADS} c_emulator/riscv_sim_RV32 2>&1 | logger sail-riscv
     cd "$RISCV"
     ln -sf ../sail-riscv/c_emulator/riscv_sim_RV64 bin/riscv_sim_RV64
     ln -sf ../sail-riscv/c_emulator/riscv_sim_RV32 bin/riscv_sim_RV32
@@ -350,13 +357,12 @@ fi
 # RISCOF is a RISC-V compliance test framework that is used to run the RISC-V Arch Tests.
 section_header "Installing/Updating RISCOF"
 STATUS="RISCOF"
-pip3 install git+https://github.com/riscv/riscof.git
+pip3 install git+https://github.com/riscv/riscof.git 2>&1 | logger riscof
 
 
 # OSU Skywater 130 cell library (https://foss-eda-tools.googlesource.com/skywater-pdk/libs/sky130_osu_sc_t12)
 # The OSU Skywater 130 cell library is a standard cell library that is used to synthesize Wally.
 section_header "Installing/Updating OSU Skywater 130 cell library"
-******************************************************************\n${ENDC}"
 STATUS="OSU Skywater 130 cell library"
 mkdir -p "$RISCV"/cad/lib
 cd "$RISCV"/cad/lib

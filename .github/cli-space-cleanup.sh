@@ -30,7 +30,7 @@
 # Remove unnecessary packages
 removePacks=( '^llvm-.*' 'php.*' '^mongodb-.*' '^mysql-.*' '^dotnet-sdk-.*' 'azure-cli' 'google-cloud-cli' 'google-chrome-stable' 'firefox' '^powershell*' 'microsoft-edge-stable' 'mono-devel' 'hhvm' )
 for pack in "${removePacks[@]}"; do
-  sudo apt-get purge -y $pack || true
+  sudo apt-get purge -y "$pack" || true
 done
 sudo apt-get autoremove -y || true
 sudo apt-get clean || true
