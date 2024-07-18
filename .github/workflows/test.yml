@@ -16,4 +16,8 @@ jobs:
       - uses: actions/checkout@v4
         # with:
         #   submodules: recursive
+      - run: |
+          df -h
+          ./.github/cli-space-cleanup.sh
+          df -h
       - run: sudo ./bin/wally-package-install.sh
