@@ -53,7 +53,7 @@ jobs:
       - name: Free up storage
         run: |
               df -h
-              nsenter -t 1 -m -u -n -i bash .github/cli-space-cleanup.sh # "$(cat .github/cli-space-cleanup.sh)"
+              nsenter -t 1 -m -u -n -i bash -c "$(cat .github/cli-space-cleanup.sh)"
               df -h
       - name: install
         run: ./bin/wally-tool-chain-install.sh
