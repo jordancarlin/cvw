@@ -20,4 +20,5 @@ jobs:
         with:
           submodules: recursive
       - name: setup
+        shell: bash
         run: source setup.sh
