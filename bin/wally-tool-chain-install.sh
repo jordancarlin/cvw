@@ -397,8 +397,8 @@ section_header "Downloading Site Setup Script"
 STATUS="site-setup scripts"
 cd "$RISCV"
 if [ ! -e "${RISCV}"/site-setup.sh ]; then
-    wget https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.sh
-    wget https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.csh
+    wget https://raw.githubusercontent.com/jordancarlin/cvw/main/site-setup.sh
+    wget https://raw.githubusercontent.com/jordancarlin/cvw/main/site-setup.csh
     # Add necessary lines to site-setup script to activate newer version of gcc for older distros
     if [ "$FAMILY" == rhel ]; then
         echo "# Activate newer gcc version" >> site-setup.sh
