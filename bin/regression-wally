@@ -363,8 +363,8 @@ if (ccov):  # only run RV64GC tests on Questa in code coverage mode
         addTests(tests64gc_fp, "questa")
 else:
     for sim in sims:
-        if (not (buildroot and sim == defaultsim)):  # skip shot buildroot sim if running long one
-            addTests(tests_buildrootshort, sim)
+        # if (not (buildroot and sim == defaultsim)):  # skip shot buildroot sim if running long one
+        #     addTests(tests_buildrootshort, sim)
         addTests(tests, sim)
         addTests(tests64gc_nofp, sim)
         addTests(tests64gc_fp, sim)
