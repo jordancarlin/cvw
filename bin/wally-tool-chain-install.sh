@@ -66,7 +66,7 @@ git_check() {
     fi
 }
 
-set -e # break on error
+set -ex # break on error
 trap error ERR # run error handler on error
 STATUS="setup" # keep track of what part of the installation is running for error messages
 
