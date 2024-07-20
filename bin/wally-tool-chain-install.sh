@@ -45,6 +45,7 @@ ENDC='\033[0m' # Reset to default color
 ## Helper functions
 # Error handler
 error() {
+    set +x
     echo -e "${FAIL_COLOR}Error: $STATUS installation failed"
     echo -e "Error on line ${BASH_LINENO[0]} with command $BASH_COMMAND${ENDC}"
     exit 1
