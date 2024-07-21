@@ -6,6 +6,9 @@ WORKDIR /opt/riscv
 
 COPY bin/wally* scripts/
 
+RUN dnf install -y sudo git && \
+    dnf install curl -y --allowerasing || true
+
 RUN ./scripts/wally-tool-chain-install.sh --clean
 
 WORKDIR /home/$USER
