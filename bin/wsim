@@ -116,11 +116,11 @@ if (args.sim == "questa"):
     else: # launch Questa in batch mode
         cmd = cd + "; " + prefix + " vsim -c -do \"" + cmd + "\""
     print("Running Questa with command: " + cmd)
-    os.system(cmd)
+    exitCode = os.system(cmd)
 elif (args.sim == "verilator"):
     # PWD=${WALLY}/sim CONFIG=rv64gc TESTSUITE=arch64i
     print(f"Running Verilator on {args.config} {args.testsuite}")
-    os.system(f"/usr/bin/make -C {regressionDir}/verilator WALLYCONF={args.config} TEST={args.testsuite} TESTBENCH={args.tb} EXTRA_ARGS='{args.args}'")
+    exitCode = os.system(f"/usr/bin/make -C {regressionDir}/verilator WALLYCONF={args.config} TEST={args.testsuite} TESTBENCH={args.tb} EXTRA_ARGS='{args.args}'")
 elif (args.sim == "vcs"):
     print(f"Running VCS on " + args.config + " " + args.testsuite)
     if (args.gui):  
@@ -133,4 +133,7 @@ elif (args.sim == "vcs"):
         ElfFile = " --elffile " + ElfFile
     cmd = cd + "; " + prefix + " ./run_vcs " + args.config + " " + args.testsuite + vcsargs + ElfFile + " " + flags
     print(cmd)
-    os.system(cmd)
+    exitCode = os.system(cmd)
+
+# Exit with non-zero code if simulation failed
+exit(exitCode)
