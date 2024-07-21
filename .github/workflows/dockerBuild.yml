@@ -1,0 +1,32 @@
+name: Build Docker Image
+on: [workflow_dispatch, push]
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  docker_build:
+    name: Build Docker Image
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Free up storage
+        run: |
+              df -h
+              ./.github/cli-space-cleanup.sh
+              df -h
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push docker image
+        uses: docker/build-push-action@v5
+        with:
+          tags: ghcr.io/jordancarlin/cvw/rocky8cvw:latest
+          push: true
