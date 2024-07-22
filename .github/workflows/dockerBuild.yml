@@ -28,5 +28,5 @@ jobs:
       - name: Build and push docker image
         uses: docker/build-push-action@v5
         with:
-          tags: ghcr.io/jordancarlin/cvw/ubuntu22cvw:latest
+          tags: ghcr.io/jordancarlin/cvw/ubuntu20cvw:latest
           push: true
