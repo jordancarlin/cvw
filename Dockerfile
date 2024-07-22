@@ -1,7 +1,6 @@
 FROM ubuntu:20.04
 
 ENV USER=wally
-ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /home/$USER
 
@@ -9,10 +8,12 @@ COPY . /home/$USER/cvw
 
 WORKDIR /home/$USER/cvw
 
-RUN apt-get update && apt-get upgrade -y && apt-get install -y sudo git
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -y \
+    && apt-get install -y sudo git \
+    && ./bin/wally-tool-chain-install.sh --clean \
+    && sudo apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN ./bin/wally-tool-chain-install.sh --clean
+RUN bash -c "source setup.sh && make riscof"
 
-RUN source setup.sh && make riscof
-
-CMD "source setup.sh && /bin/bash"
+CMD ["bash", "-c", "source setup.sh && exec /bin/bash"]
