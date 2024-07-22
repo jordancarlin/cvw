@@ -18,6 +18,10 @@ RUN apt-get update -y \
     && sudo apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# RUN bash -c "source setup.sh && make riscof"
+RUN source setup.sh \
+    && gcc --version \
+    && which python \
+    && git config --global --add safe.directory '*' \
+    && make riscof
 
 CMD ["bash", "-c", "source setup.sh && exec /bin/bash"]
