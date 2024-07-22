@@ -14,6 +14,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -y \
     && sudo apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN bash -c "source setup.sh && make riscof"
+# RUN bash -c "source setup.sh && make riscof"
 
 CMD ["bash", "-c", "source setup.sh && exec /bin/bash"]
