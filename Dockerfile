@@ -1,5 +1,7 @@
 FROM ubuntu:20.04
 
+SHELL ["/bin/bash", "-c"]
+
 ENV USER=wally
 
 WORKDIR /home/$USER
@@ -8,7 +10,9 @@ COPY . /home/$USER/cvw
 
 WORKDIR /home/$USER/cvw
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update -y \
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update -y \
     && apt-get install -y sudo git \
     && ./bin/wally-tool-chain-install.sh --clean \
     && sudo apt-get clean \
