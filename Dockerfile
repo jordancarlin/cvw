@@ -2,15 +2,14 @@ FROM ubuntu:20.04
 
 ENV USER=wally
 
-WORKDIR /opt/riscv
-
-COPY bin/wally* scripts/
-
-RUN apt-get update && apt-get upgrade -y && apt-get install -y sudo git
-    # dnf install curl -y --allowerasing || true
-
-RUN ./scripts/wally-tool-chain-install.sh --clean
-
 WORKDIR /home/$USER
 
-CMD ["/bin/bash"]
+COPY . /home/$USER/cvw
+
+RUN apt-get update && apt-get upgrade -y && apt-get install -y sudo git
+
+RUN ./bin/wally-tool-chain-install.sh --clean
+
+RUN source setup.sh && make riscof
+
+CMD "source setup.sh && /bin/bash"
