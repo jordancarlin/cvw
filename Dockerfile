@@ -1,10 +1,13 @@
 FROM ubuntu:20.04
 
 ENV USER=wally
+ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /home/$USER
 
 COPY . /home/$USER/cvw
+
+WORKDIR /home/$USER/cvw
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y sudo git
 
