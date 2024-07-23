@@ -116,6 +116,7 @@ module testbench;
   logic PrevPCZero;
 
   initial begin
+    $display("Start of initial begin");
     // look for arguments passed to simulation, or use defaults
     if (!$value$plusargs("TEST=%s", TEST))
       TEST = "none";
@@ -123,7 +124,7 @@ module testbench;
       ElfFile = "none";
     if (!$value$plusargs("INSTR_LIMIT=%d", INSTR_LIMIT))
       INSTR_LIMIT = 0;
-    //$display("TEST = %s ElfFile = %s", TEST, ElfFile);
+    $display("TEST = %s ElfFile = %s", TEST, ElfFile);
     
     // pick tests based on modes supported
     //tests = '{};
@@ -240,6 +241,7 @@ module testbench;
     $dumpfile("testbench.vcd");
     $dumpvars;
 `endif
+  $display("At end of inital begin");
   end // initial begin
 
   // Model the testbench as an fsm.
