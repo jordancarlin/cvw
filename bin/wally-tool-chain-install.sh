@@ -45,7 +45,6 @@ ENDC='\033[0m' # Reset to default color
 ## Helper functions
 # Error handler
 error() {
-    set +x
     echo -e "${FAIL_COLOR}Error: $STATUS installation failed"
     echo -e "Error on line ${BASH_LINENO[0]} with command $BASH_COMMAND${ENDC}"
     exit 1
@@ -71,7 +70,7 @@ logger() {
     cat < /dev/stdin | tee -a "$log" | (grep -iE --color=never "(\bwarning|\berror|\bfail|\bsuccess|\bstamp)" || true) | (grep -viE --color=never "(_warning|warning_|_error|error_|-warning|warning-|-error|error-|Werror|error\.o|warning flags)" || true)
 }
 
-set -ex # break on error
+set -e # break on error
 trap error ERR # run error handler on error
 STATUS="setup" # keep track of what part of the installation is running for error messages
 
