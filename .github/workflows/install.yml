@@ -1,0 +1,187 @@
+name: Installation
+on: [workflow_dispatch, push]
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ubuntu_install:
+    name: Test installation on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-20.04", "ubuntu-22.04", "ubuntu-24.04"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Free up storage
+        run: |
+              df -h
+              ./.github/cli-space-cleanup.sh
+              df -h
+      - name: install
+        run: sudo ./bin/wally-tool-chain-install.sh --clean
+      - name: Upload installation logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installation-logs-${{ matrix.os }}
+          path: /opt/riscv/logs/
+      - name: make tests
+        run: |
+              source setup.sh
+              sed -i 's,jobs=4,jobs=3,g' "$WALLY"/tests/riscof/config.ini
+              make riscof
+      - name: regression
+        run: |
+              source setup.sh
+              regression-wally
+      - name: Upload regression logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-logs-${{ matrix.os }}
+          path: ${{ github.workspace }}/sim/verilator/logs/
+
+  rhel_family_install:
+    name: Test installation on ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.os }}
+      options: --privileged --mount type=bind,source=/,target=/host --pid=host --entrypoint /bin/bash
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["rockylinux:8", "rockylinux:9", "almalinux:8", "almalinux:9"]
+    steps:
+      - name: Unique name for Artifacts
+        id: prep_artifact_name
+        run: |
+              name=$(echo -n "${{ matrix.os }}" | sed -e 's/[ \t:\/\\"<>|*?]/-/g' -e 's/--*/-/g')
+              echo "ARTIFACT_NAME=$name" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: |
+              dnf install -y sudo git
+              dnf install curl -y --allowerasing || true
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Fix git ownership
+        run: git config --global --add safe.directory '*'
+      - name: Free up storage
+        run: |
+              df -h
+              nsenter -t 1 -m -u -n -i bash -c "$(cat .github/cli-space-cleanup.sh)"
+              df -h
+      - name: install
+        run: sudo ./bin/wally-tool-chain-install.sh --clean
+      - name: Upload installation logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installation-logs-${{ env.ARTIFACT_NAME }}
+          path: /opt/riscv/logs/
+      - name: make tests
+        run: |
+              source setup.sh
+              sed -i 's,jobs=4,jobs=3,g' "$WALLY"/tests/riscof/config.ini
+              make riscof
+      - name: regression
+        run: |
+              source setup.sh
+              regression-wally
+      - name: Upload regression logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-logs-${{ env.ARTIFACT_NAME }}
+          path: ${{ github.workspace }}/sim/verilator/logs/
+
+
+  user_install:
+    name: Test installation with user permissions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Free up storage
+        run: |
+              df -h
+              ./.github/cli-space-cleanup.sh
+              df -h
+      - name: install packages with sudo
+        run: sudo ./bin/wally-package-install.sh
+      - name: install
+        run: ./bin/wally-tool-chain-install.sh --clean
+      - name: Upload installation logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installation-logs-user-install
+          path: ~/riscv/logs/
+      - name: make tests
+        run: |
+              source setup.sh
+              sed -i 's,jobs=4,jobs=3,g' "$WALLY"/tests/riscof/config.ini
+              make riscof
+      - name: regression
+        run: |
+              source setup.sh
+              regression-wally
+      - name: Upload regression logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-logs-user-install
+          path: ${{ github.workspace }}/sim/verilator/logs/
+
+
+  custom_location_install:
+    name: Test installation with custom location ${{ matrix.path }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        path: ["/home/riscv"]
+    steps:
+      - name: Unique name for Artifacts
+        id: prep_artifact_name
+        run: |
+              name=$(echo -n "${{ matrix.os }}" | sed -e 's/[ \t:\/\\"<>|*?]/-/g' -e 's/--*/-/g')
+              echo "ARTIFACT_NAME=$name" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Free up storage
+        run: |
+              df -h
+              ./.github/cli-space-cleanup.sh
+              df -h
+      - name: install
+        run: sudo ./bin/wally-tool-chain-install.sh --clean ${{ matrix.path }}
+      - name: Upload instalation logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installation-logs-custom-location-install-${{ env.ARTIFACT_NAME }}
+          path: ${{ matrix.path }}/logs/
+      - name: Update setup.sh with new $RISCV location
+        run: sed -i 's,exit 1,export RISCV=${{ matrix.path }},g' setup.sh
+      - name: make tests
+        run: |
+              source setup.sh
+              sed -i 's,jobs=4,jobs=3,g' "$WALLY"/tests/riscof/config.ini
+              make riscof
+      - name: regression
+        run: |
+              source setup.sh
+              regression-wally
+      - name: Upload regression logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-logs-custom-location-install-${{ env.ARTIFACT_NAME }}
+          path: ${{ github.workspace }}/sim/verilator/logs/
