@@ -424,7 +424,7 @@ section_header "Downloading Site Setup Script"
 STATUS="site-setup scripts"
 cd "$RISCV"
 if [ ! -e "${RISCV}"/site-setup.sh ]; then
-    wget https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.sh
+    wget https://raw.githubusercontent.com/jordancarlin/cvw/main/site-setup.sh
     wget https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.csh
     echo -e "${SUCCESS_COLOR}Site setup script successfully downloaded!${ENDC}"
     echo -e "${WARNING_COLOR}Make sure to edit the environment variables in $RISCV/site-setup.sh (or .csh) to point to your installation of EDA tools and licensce files.${ENDC}"
