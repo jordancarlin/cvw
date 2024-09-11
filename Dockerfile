@@ -2,23 +2,31 @@ FROM ubuntu:24.04
 
 SHELL ["/bin/bash", "-c"]
 
-ENV USER=wally
+# Create a user with sudo privileges
+ARG USERNAME=wally
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
-WORKDIR /home/$USER
+# Change to the new user
+USER $USERNAME
 
-COPY . /home/$USER/cvw
+COPY . /home/$USERNAME/cvw
 
-WORKDIR /home/$USER/cvw
+WORKDIR /home/$USERNAME/cvw
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y \
     && apt-get install -y sudo git \
     && ./bin/wally-package-install.sh \
-    && sudo apt-get clean \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN ./bin/wally-tool-chain-install.sh --clean
+RUN sudo ./bin/wally-tool-chain-install.sh --clean
 
 RUN source setup.sh \
     && git config --global --add safe.directory '*' \

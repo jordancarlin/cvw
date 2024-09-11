@@ -1,5 +1,5 @@
 name: Build Docker Image
-on: [workflow_dispatch, push]
+on: [workflow_dispatch, push, pull_request]
 defaults:
   run:
     shell: bash
