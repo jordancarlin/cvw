@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
 SHELL ["/bin/bash", "-c"]
 
@@ -14,14 +14,14 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y \
     && apt-get install -y sudo git \
-    && ./bin/wally-tool-chain-install.sh --clean \
+    && ./bin/wally-package-install.sh \
     && sudo apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+RUN ./bin/wally-tool-chain-install.sh --clean
+
 RUN source setup.sh \
-    && gcc --version \
-    && which python \
     && git config --global --add safe.directory '*' \
-    && make riscof
+    && make -j$(nproc)
 
 CMD ["bash", "-c", "source setup.sh && exec /bin/bash"]
