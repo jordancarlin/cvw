@@ -1,3 +1,7 @@
+# CVW Dockerfile
+# Jordan Carlin jcarlin@hmc.edu  July 2024
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+
 FROM ubuntu:24.04
 
 SHELL ["/bin/bash", "-c"]
