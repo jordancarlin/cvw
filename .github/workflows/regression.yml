@@ -58,7 +58,7 @@ jobs:
       id: restore-tests
       uses: actions/cache/restore@v4
       with:
-        path: "${{ github.workspace }}/tests.xz"
+        path: tests.xz
         key: tests-${{ env.TEST_HASH }}
     - name: Extract tests
       if: steps.restore-tests.outputs.cache-hit == 'true'
@@ -83,7 +83,7 @@ jobs:
       id: save-tests
       uses: actions/cache/save@v4
       with:
-        path: ${{ github.workspace }}/tests.xz
+        path: tests.xz
         key: ${{ steps.restore-tests.outputs.cache-primary-key }}
 
     # # Use cached verilator from the past week
