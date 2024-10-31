@@ -44,7 +44,7 @@ jobs:
         id: get-date
         run: echo "date=$(/bin/date -u "+%Y-%U")" >> $GITHUB_OUTPUT
       - name: Cache tools
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           key: riscv-${{ steps.get-date.outputs.date }}
           path: riscv.xz
