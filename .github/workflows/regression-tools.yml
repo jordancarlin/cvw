@@ -1,0 +1,50 @@
+##################################
+# install.yml
+# jcarlin@hmc.edu October 2024
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# GitHub Action to create and cache the tools needed for regression for Wally.
+##################################
+
+name: Cache Regression Tools
+
+# Run on PR that modifies the installation scripts, weekly, or manually
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # Run at 12:00 AM UTC on Sundays
+
+# Use bash shell with extra GitHub Actions options for all jobs
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  regression_tools:
+    name: Cache Regression Tools
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone Necessary Submodules
+        run: |
+              git config --global --add safe.directory '*'
+              git submodule update --init addins/riscv-arch-test addins/verilog-ethernet
+      - name: free up storage
+        run: ./.github/cli-space-cleanup.sh
+      - name: Install
+        run: |
+              sudo ./bin/wally-tool-chain-install.sh --clean
+              source setup.sh
+              cd $RISCV
+              sudo rm -rf buildroot cad logs
+              cd ..
+              tar cJvf ${{ github.workspace }}/riscv.xz riscv
+      # Set cache keys based on date
+      - name: Get Date
+        id: get-date
+        run: echo "date=$(/bin/date -u "+%Y-%U")" >> $GITHUB_OUTPUT
+      - name: Cache tools
+        uses: actions/cache@v2
+        with:
+          key: riscv-${{ steps.get-date.outputs.date }}
+          path: riscv.xz
