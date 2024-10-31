@@ -70,8 +70,8 @@ jobs:
       if: steps.restore-tests.outputs.cache-hit != 'true'
       run: |
             source setup.sh
-            cd tests/riscof && make --jobs $(nproc --ignore 1)
-            rm -rf sail_cSim spike
+            make riscof --jobs $(nproc --ignore 1)
+            cd tests/riscof && rm -rf sail_cSim spike
             cd work
             find . -name \dut -type d -exec rm -r {} +
             find . -name \*.log -type f -delete
