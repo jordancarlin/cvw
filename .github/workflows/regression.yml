@@ -37,7 +37,7 @@ jobs:
       id: restore-tools
       uses: actions/cache/restore@v4
       with:
-        path: /opt
+        path: /opt/riscv.xz
         key: riscv-${{ steps.get-date.outputs.date }}
         fail-on-cache-miss: true
     - name: Extract tools
