@@ -1,0 +1,113 @@
+##################################
+# regression.yml
+# jcarlin@hmc.edu October 2024
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# GitHub Action to run regression on changes to CVW.
+##################################
+
+name: Regression Test
+
+on:
+  workflow_dispatch:
+  # push:
+    # branches:
+    #   - main
+  # pull_request:
+    # branches:
+    #   - main
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout repo
+    - uses: actions/checkout@v4
+    - name: Clone Necessary Submodules
+      run: |
+            git config --global --add safe.directory '*'
+            git submodule update --init addins/riscv-arch-test addins/verilog-ethernet
+
+    # Use cached tools from the past week
+    - name: Get Date
+      id: get-date
+      run: echo "date=$(/bin/date -u "+%Y-%U")" >> $GITHUB_OUTPUT
+    - name: Restore cached tools
+      id: restore-tools
+      uses: actions/cache/restore@v4
+      with:
+        path: /opt
+        key: riscv-${{ steps.get-date.outputs.date }}
+        fail-on-cache-miss: true
+    - name: Extract tools
+      if: steps.restore-tools.outputs.cache-hit == 'true'
+      run: |
+            cd /opt
+            tar xJf riscv.xz
+            rm -f riscv.xz
+
+    # Use prebuilt tests if tests have not changed, otherwise build tests
+    - name: Check test hash
+      run: |
+            TEST_HASH=${{ hashFiles('tests')}}_${{ hashFiles('addins/riscv-arch-test')}}
+            echo "TEST_HASH=$TEST_HASH" >> "$GITHUB_ENV"
+    - name: Restore cached tests if match
+      id: restore-tests
+      uses: actions/cache/restore@v4
+      with:
+        path: "${{ github.workspace }}/tests.xz"
+        key: tests-${{ env.TEST_HASH }}
+    - name: Extract tests
+      if: steps.restore-tests.outputs.cache-hit == 'true'
+      run: |
+            rm -rf tests
+            tar xJf tests.xz
+            rm -f tests.xz
+    - name: Make tests
+      if: steps.restore-tests.outputs.cache-hit != 'true'
+      run: |
+            source setup.sh
+            cd tests && make riscof --jobs $(nproc --ignore 1)
+            cd riscof && rm -rf sail_cSim spike
+            cd work
+            find . -name \dut -type d -exec rm -r {} +
+            find . -name \*.log -type f -delete
+            find . -name \*.objdump -type f -delete
+            cd ../..
+            tar cJvf tests.xz tests
+    - name: Save cached tests
+      if: steps.restore-tests.outputs.cache-hit != 'true'
+      id: save-tests
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ github.workspace }}/tests.xz
+        key: ${{ steps.restore-tests.outputs.cache-primary-key }}
+
+    # # Use cached verilator from the past week
+    # - name: Restore cached verilator
+    #   uses: actions/cache/restore@v4
+    #   with:
+    #     path: /opt/riscv
+    #     key: verilator-${{ steps.get-date.outputs.date }}
+    #     fail-on-cache-miss: true
+
+    # # Restore linux testvectors
+    # - name: Restore cached linux testvectors
+    #   uses: actions/cache/restore@v4
+    #   with:
+    #     path: /opt/riscv/linux-testvectors
+    #     key: linux-${{ steps.get-date.outputs.date }}
+    #     fail-on-cache-miss: true
+
+    # Run regression
+    - name: Run regression
+      run: |
+            source setup.sh
+            regression-wally
+    - name: Upload regression logs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: regression-logs
+        path: ${{ github.workspace }}/sim/verilator/logs/
