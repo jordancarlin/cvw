@@ -37,12 +37,14 @@ jobs:
       id: restore-tools
       uses: actions/cache/restore@v4
       with:
-        path: /opt/riscv.xz
+        path: ${{ github.workspace }}/riscv.xz
         key: riscv-${{ steps.get-date.outputs.date }}
         fail-on-cache-miss: true
     - name: Extract tools
       if: steps.restore-tools.outputs.cache-hit == 'true'
       run: |
+            sudo mkdir -p /opt
+            mv riscv.xz /opt
             cd /opt
             tar xJf riscv.xz
             rm -f riscv.xz
