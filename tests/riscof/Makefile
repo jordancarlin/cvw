@@ -14,7 +14,7 @@ current_dir := $(shell pwd)
 
 # General make rules
 .PHONY: all riscv-arch-test wally-riscv-arch-test quad64 finish clean
-all: riscv-arch-test wally-riscv-arch-test finish
+all: riscv-arch-test wally-riscv-arch-test .WAIT finish
 riscv-arch-test: arch32e arch32 arch64
 wally-riscv-arch-test: wally32 wally64
 
