@@ -30,6 +30,7 @@ jobs:
             git submodule update --init addins/riscv-arch-test addins/verilog-ethernet
 
     # Use cached tools from the past week
+    - run: sudo ./bin/wally-package-install.sh
     - name: Get Date
       id: get-date
       run: echo "date=$(/bin/date -u "+%Y-%U")" >> $GITHUB_OUTPUT
@@ -48,6 +49,7 @@ jobs:
             cd /opt
             tar xJf riscv.xz
             rm -f riscv.xz
+            cd /opt/riscv
 
     # Use prebuilt tests if tests have not changed, otherwise build tests
     - name: Check test hash
