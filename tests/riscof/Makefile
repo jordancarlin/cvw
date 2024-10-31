@@ -13,8 +13,8 @@ wally_workdir := $(work)/wally-riscv-arch-test
 current_dir := $(shell pwd)
 
 # General make rules
-.PHONY: all riscv-arch-test wally-riscv-arch-test quad64 clean
-all: riscv-arch-test wally-riscv-arch-test
+.PHONY: all riscv-arch-test wally-riscv-arch-test quad64 finish clean
+all: riscv-arch-test wally-riscv-arch-test finish
 riscv-arch-test: arch32e arch32 arch64
 wally-riscv-arch-test: wally32 wally64
 
@@ -37,6 +37,9 @@ wally%: config$$*.ini | $(work_dir) $(wally_workdir)
 quad64: config64.ini $(wally_dir)/riscv-test-suite/rv64i_m/Q/riscv-ctg/tests | $(work_dir)
 	riscof run --work-dir=$(work_dir)/$@ --config=$< --suite=$(wally_dir)/riscv-test-suite/rv64i_m/Q/riscv-ctg/tests/ --env=$(wally_dir)/riscv-test-suite/env
 	$(MAKE) -f makefile-memfile WORKDIR=$(work_dir)/$@
+
+finish:
+	rm -rf $(work_dir)
 
 clean:
 	rm -f config??*.ini
