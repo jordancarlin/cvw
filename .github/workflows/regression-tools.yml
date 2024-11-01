@@ -37,8 +37,8 @@ jobs:
               source setup.sh
               cd $RISCV
               sudo rm -rf buildroot cad logs
-              # cd ..
-              # tar cJvf ${{ github.workspace }}/riscv.xz riscv
+              cd ..
+              tar cJvf ${{ github.workspace }}/riscv.xz riscv
       # Set cache keys based on date
       - name: Get Date
         id: get-date
@@ -46,5 +46,5 @@ jobs:
       - name: Cache tools
         uses: actions/cache@v4
         with:
-          key: riscv-${{ steps.get-date.outputs.date }}-test
-          path: /opt/riscv
+          key: riscv-${{ steps.get-date.outputs.date }}
+          path: riscv.xz
