@@ -29,6 +29,8 @@ jobs:
             git config --global --add safe.directory '*'
             git submodule update --init addins/riscv-arch-test addins/verilog-ethernet
 
+    - name: free up storage
+      run: ./.github/cli-space-cleanup.sh
     # Use cached tools from the past week
     - run: sudo ./bin/wally-package-install.sh
     - name: Get Date
