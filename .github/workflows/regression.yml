@@ -110,6 +110,8 @@ jobs:
     - name: Run regression
       run: |
             source setup.sh
+            make zsbl
+            cd sim && make deriv
             regression-wally
     - name: Upload regression logs
       uses: actions/upload-artifact@v4
