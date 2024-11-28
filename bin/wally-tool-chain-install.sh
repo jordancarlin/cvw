@@ -413,10 +413,10 @@ fi
 section_header "Installing/Updating Sail Compiler"
 STATUS="Sail Compiler"
 if [ ! -e "$RISCV"/bin/sail ]; then
-    cd "$RISCV"
-    wget -nv --retry-connrefused $retry_on_host_error --output-document=sail.tar.gz https://github.com/rems-project/sail/releases/latest/download/sail.tar.gz
-    tar xz --directory="$RISCV" --strip-components=1 -f sail.tar.gz
-    rm -f sail.tar.gz
+    cd "$RISCV/bin"
+    wget -nv --retry-connrefused $retry_on_host_error --output-document=riscv_sim_RV64.tar.gz https://github.com/user-attachments/files/17933831/riscv_sim_RV64.tar.gz
+    tar xz --directory="$RISCV/bin" -f riscv_sim_RV64.tar.gz
+    rm -f riscv_sim_RV64.tar.gz
     echo -e "${SUCCESS_COLOR}Sail Compiler successfully installed/updated!${ENDC}"
 else
     echo -e "${SUCCESS_COLOR}Sail Compiler already installed.${ENDC}"
@@ -424,23 +424,23 @@ fi
 
 # RISC-V Sail Model (https://github.com/riscv/sail-riscv)
 # The RISC-V Sail Model is the golden reference model for RISC-V. It is written in Sail (described above)
-section_header "Installing/Updating RISC-V Sail Model"
-STATUS="riscv-sail-model"
-if git_check "sail-riscv" "https://github.com/riscv/sail-riscv.git" "$RISCV/bin/riscv_sim_RV32"; then
-    cd "$RISCV"/sail-riscv
-    git reset --hard && git clean -f && git checkout master && git pull
-    ARCH=RV64 make -j "${NUM_THREADS}" c_emulator/riscv_sim_RV64  2>&1 | logger $STATUS; [ "${PIPESTATUS[0]}" == 0 ]
-    ARCH=RV32 make -j "${NUM_THREADS}" c_emulator/riscv_sim_RV32 2>&1 | logger $STATUS; [ "${PIPESTATUS[0]}" == 0 ]
-    cp -f c_emulator/riscv_sim_RV64 "$RISCV"/bin/riscv_sim_RV64
-    cp -f c_emulator/riscv_sim_RV32 "$RISCV"/bin/riscv_sim_RV32
-    if [ "$clean" ]; then
-        cd "$RISCV"
-        rm -rf sail-riscv
-    fi
-    echo -e "${SUCCESS_COLOR}RISC-V Sail Model successfully installed/updated!${ENDC}"
-else
-    echo -e "${SUCCESS_COLOR}RISC-V Sail Model already up to date.${ENDC}"
-fi
+# section_header "Installing/Updating RISC-V Sail Model"
+# STATUS="riscv-sail-model"
+# if git_check "sail-riscv" "https://github.com/riscv/sail-riscv.git" "$RISCV/bin/riscv_sim_RV32"; then
+#     cd "$RISCV"/sail-riscv
+#     git reset --hard && git clean -f && git checkout master && git pull
+#     ARCH=RV64 make -j "${NUM_THREADS}" c_emulator/riscv_sim_RV64  2>&1 | logger $STATUS; [ "${PIPESTATUS[0]}" == 0 ]
+#     ARCH=RV32 make -j "${NUM_THREADS}" c_emulator/riscv_sim_RV32 2>&1 | logger $STATUS; [ "${PIPESTATUS[0]}" == 0 ]
+#     cp -f c_emulator/riscv_sim_RV64 "$RISCV"/bin/riscv_sim_RV64
+#     cp -f c_emulator/riscv_sim_RV32 "$RISCV"/bin/riscv_sim_RV32
+#     if [ "$clean" ]; then
+#         cd "$RISCV"
+#         rm -rf sail-riscv
+#     fi
+#     echo -e "${SUCCESS_COLOR}RISC-V Sail Model successfully installed/updated!${ENDC}"
+# else
+#     echo -e "${SUCCESS_COLOR}RISC-V Sail Model already up to date.${ENDC}"
+# fi
 
 
 # OSU Skywater 130 cell library (https://foss-eda-tools.googlesource.com/skywater-pdk/libs/sky130_osu_sc_t12)
