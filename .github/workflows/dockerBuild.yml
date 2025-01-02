@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        # with:
-        #   submodules: recursive
-      # - name: Free up storage
-      #   run: |
-      #         df -h
-      #         ./.github/cli-space-cleanup.sh
-      #         df -h
+        with:
+          submodules: recursive
+      - name: Free up storage
+        run: |
+              df -h
+              ./.github/cli-space-cleanup.sh
+              df -h
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to GHCR
