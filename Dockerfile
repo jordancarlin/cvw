@@ -11,7 +11,7 @@ ARG USERNAME=wally
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 RUN apt update && \
-    apt install -y sudo && \
+    apt install -y sudo openssl && \
     groupadd -f --gid $USER_GID $USERNAME && \
     useradd -m -u $USER_UID -g $USER_GID -s /bin/bash -p "$(openssl passwd -1 wally)" $USERNAME \
     && usermod -aG sudo $USERNAME \
