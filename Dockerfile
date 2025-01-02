@@ -13,7 +13,7 @@ ARG USER_GID=$USER_UID
 RUN apt update && \
     apt install -y sudo && \
     groupadd -f --gid $USER_GID $USERNAME && \
-    useradd -U -m -u $USER_UID -g $USER_GID -s /bin/bash -p "$(openssl passwd -1 wally)" $USERNAME \
+    useradd -m -u $USER_UID -g $USER_GID -s /bin/bash -p "$(openssl passwd -1 wally)" $USERNAME \
     && usermod -aG sudo $USERNAME \
     && echo '%sudo ALL=(ALL) NOPASSWD: ALL' | EDITOR='tee -a' visudo \
     && : # last line
@@ -27,9 +27,7 @@ WORKDIR /home/$USERNAME/cvw
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -y \
-    && apt-get install -y sudo git \
-    && ./bin/wally-package-install.sh \
+RUN ./bin/wally-package-install.sh \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
