@@ -10,13 +10,14 @@ SHELL ["/bin/bash", "-c"]
 ARG USERNAME=wally
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN apt update && \
-    apt install -y sudo openssl && \
+RUN apt-get update && \
+    apt-get install -y sudo openssl && \
     groupadd -f --gid $USER_GID $USERNAME && \
     useradd -m -u $USER_UID -g $USER_GID -s /bin/bash -p "$(openssl passwd -1 wally)" $USERNAME \
     && usermod -aG sudo $USERNAME \
     && echo '%sudo ALL=(ALL) NOPASSWD: ALL' | EDITOR='tee -a' visudo \
-    && : # last line
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Change to the new user
 USER $USERNAME
@@ -27,7 +28,7 @@ WORKDIR /home/$USERNAME/cvw
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN ./bin/wally-package-install.sh \
+RUN sudo ./bin/wally-package-install.sh \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
