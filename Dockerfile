@@ -37,12 +37,14 @@ WORKDIR /home/$USERNAME/cvw
 
 # Install dependencies
 RUN sudo ./bin/wally-package-install.sh \
+    && pip cache purge \
     && sudo apt-get clean \
     && sudo rm -rf /var/lib/apt/lists/*
 
 # Install main tools
 RUN sudo ./bin/wally-tool-chain-install.sh --clean \
-    && sudo rm -rf $RISCV/buildroot/output/build
+    && sudo rm -rf $RISCV/buildroot/output/build \
+    && sudo rm -rf $RISCV/logs
 
 # Build tests
 RUN if [ "$BUILD_TESTS" == "true" ]; then \
