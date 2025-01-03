@@ -15,7 +15,8 @@ jobs:
       - name: Free up storage
         run: |
               df -h
-              ./.github/cli-space-cleanup.sh
+              ./.github/scripts/cli-space-cleanup.sh
+              ./.github/scripts/cli-create-lvm.sh
               df -h
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
