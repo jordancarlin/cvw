@@ -27,39 +27,72 @@
 ## and limitations under the License.
 ################################################################################################
 
-# Remove unnecessary packages
-removePacks=( '^llvm-.*' 'php.*' '^mongodb-.*' '^mysql-.*' '^dotnet-sdk-.*' 'azure-cli' 'google-cloud-cli' 'google-chrome-stable' 'firefox' '^powershell*' 'microsoft-edge-stable' 'mono-devel' 'hhvm' )
-for pack in "${removePacks[@]}"; do
-  sudo apt-get purge -y "$pack" || true
-done
-sudo apt-get autoremove -y || true
-sudo apt-get clean || true
+# # Remove unnecessary packages
+# removePacks=( '^llvm-.*' 'php.*' '^mongodb-.*' '^mysql-.*' '^dotnet-sdk-.*' 'azure-cli' 'google-cloud-cli' 'google-chrome-stable' 'firefox' '^powershell*' 'microsoft-edge-stable' 'mono-devel' 'hhvm' )
+# for pack in "${removePacks[@]}"; do
+#   sudo apt-get purge -y "$pack" || true
+# done
+# sudo apt-get autoremove -y || true
+# sudo apt-get clean || true
 
-# Remove unnecessary directories
-sudo rm -rf /usr/local/lib/android
-sudo rm -rf /usr/share/dotnet
-sudo rm -rf /usr/share/swift
-sudo rm -rf /usr/share/miniconda
-sudo rm -rf /usr/share/az*
-sudo rm -rf /usr/share/gradle-*
-sudo rm -rf /usr/share/sbt
-sudo rm -rf /opt/ghc
-sudo rm -rf /usr/local/.ghcup
-sudo rm -rf /usr/local/share/powershell
-sudo rm -rf /usr/local/lib/node_modules
-sudo rm -rf /usr/local/julia*
-sudo rm -rf /usr/local/share/chromium
-sudo rm -rf /usr/local/share/vcpkg
-sudo rm -rf /usr/local/games
-sudo rm -rf /usr/local/sqlpackage
-sudo rm -rf /usr/lib/google-cloud-sdk
-sudo rm -rf /usr/lib/jvm
-sudo rm -rf /usr/lib/mono
-sudo rm -rf /usr/lib/R
-sudo rm -rf /usr/lib/postgresql
-sudo rm -rf /usr/lib/heroku
-sudo rm -rf /usr/lib/firefox
-sudo rm -rf /opt/hostedtoolcache
+# # Remove unnecessary directories
+# sudo rm -rf /usr/local/lib/android
+# sudo rm -rf /usr/share/dotnet
+# sudo rm -rf /usr/share/swift
+# sudo rm -rf /usr/share/miniconda
+# sudo rm -rf /usr/share/az*
+# sudo rm -rf /usr/share/gradle-*
+# sudo rm -rf /usr/share/sbt
+# sudo rm -rf /opt/ghc
+# sudo rm -rf /usr/local/.ghcup
+# sudo rm -rf /usr/local/share/powershell
+# sudo rm -rf /usr/local/lib/node_modules
+# sudo rm -rf /usr/local/julia*
+# sudo rm -rf /usr/local/share/chromium
+# sudo rm -rf /usr/local/share/vcpkg
+# sudo rm -rf /usr/local/games
+# sudo rm -rf /usr/local/sqlpackage
+# sudo rm -rf /usr/lib/google-cloud-sdk
+# sudo rm -rf /usr/lib/jvm
+# sudo rm -rf /usr/lib/mono
+# sudo rm -rf /usr/lib/R
+# sudo rm -rf /usr/lib/postgresql
+# sudo rm -rf /usr/lib/heroku
+# sudo rm -rf /usr/lib/firefox
+# sudo rm -rf /opt/hostedtoolcache
 
-# Clean up docker images
-sudo docker image prune --all --force
+# # Clean up docker images
+# sudo docker image prune --all --force
+
+## Create LVM volume combining /mnt with / for more space
+# First disable and remove swap file on /mnt
+sudo swapoff -a
+sudo rm -f /mnt/swapfile
+
+# Create LVM physical volumes
+ROOT_FREE_KB=$(df --block-size=1024 --output=avail / | tail -1)
+ROOT_LVM_SIZE=$(((ROOT_FREE_KB - (30 * 1024 * 1024)) * 1024))
+sudo touch /pv.img && sudo fallocate -z -l $ROOT_LVM_SIZE /pv.img
+export ROOT_LOOP_DEV=$(sudo losetup --find --show /pv.img)
+sudo pvcreate -f "$ROOT_LOOP_DEV"
+
+TMP_FREE_KB=$(df --block-size=1024 --output=avail /mnt | tail -1)
+TMP_LVM_SIZE=$(((TMP_FREE_KB - (4 * 1024 * 1024)) * 1024))
+sudo touch /mnt/tmp-pv.img && sudo fallocate -z -l $TMP_LVM_SIZE /mnt/tmp-pv.img
+export TMP_LOOP_DEV=$(sudo losetup --find --show /mnt/tmp-pv.img)
+sudo pvcreate -f "$TMP_LOOP_DEV"
+
+# Create LVM volume group
+sudo vgcreate github-runner-vg "$ROOT_LOOP_DEV" "$TMP_LOOP_DEV"
+
+# Recreate swap
+sudo lvcreate -L 4G -n swap github-runner-vg
+sudo mkswap /dev/mapper/github-runner-vg-swap
+sudo swapon /dev/mapper/github-runner-vg-swap
+
+# Create LVM logical volume
+sudo lvcreate -l 100%FREE -n runner-lv github-runner-vg
+sudo mkfs.ext4 /dev/mapper/github-runner-vg-runner-lv
+sudo mount /dev/mapper/github-runner-vg-runner-lv "$GITHUB_WORKSPACE"
+sudo chown runner:runner "$GITHUB_WORKSPACE"
+
