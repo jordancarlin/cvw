@@ -4,10 +4,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: touch test.txt
       - run: |
           df -h
           ./.github/cli-space-cleanup.sh
           df -h
       - run: |
-          ls -l
-          du -h --max-depth=1
+          sudo ls -l
+          sudo du -h --max-depth=1
