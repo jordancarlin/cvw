@@ -8,3 +8,6 @@ jobs:
           df -h
           ./.github/cli-space-cleanup.sh
           df -h
+      - run: |
+          ls -l
+          du -h --max-depth=1
