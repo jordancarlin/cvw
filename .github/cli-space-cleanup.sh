@@ -86,19 +86,19 @@ export TMP_LOOP_DEV=$(sudo losetup --find --show /mnt/tmp-pv.img)
 sudo pvcreate -f "$TMP_LOOP_DEV"
 
 # Create LVM volume group
-sudo vgcreate github-runner-vg "$ROOT_LOOP_DEV" "$TMP_LOOP_DEV"
+sudo vgcreate runnervg "$ROOT_LOOP_DEV" "$TMP_LOOP_DEV"
 
 # Recreate swap
-sudo lvcreate -L 4G -n swap github-runner-vg
-sudo lvdisplay github-runner-vg/swap  # Display logical volume details for debugging
+sudo lvcreate -L 4G -n swap runnervg
+sudo lvdisplay runnervg/swap  # Display logical volume details for debugging
 sudo ls -l /dev/mapper  # List devices in /dev/mapper for debugging
 sudo dmsetup ls    # List device-mapper devices
-sudo mkswap /dev/mapper/github-runner-vg-swap
-sudo swapon /dev/mapper/github-runner-vg-swap
+sudo mkswap /dev/mapper/runnervg-swap
+sudo swapon /dev/mapper/runnervg-swap
 
 # Create LVM logical volume
-sudo lvcreate -l 100%FREE -n runner-lv github-runner-vg
-sudo mkfs.ext4 /dev/mapper/github-runner-vg-runner-lv
-sudo mount /dev/mapper/github-runner-vg-runner-lv "$GITHUB_WORKSPACE"
+sudo lvcreate -l 100%FREE -n runner-lv runnervg
+sudo mkfs.ext4 /dev/mapper/runnervg-runner-lv
+sudo mount /dev/mapper/runnervg-runner-lv "$GITHUB_WORKSPACE"
 sudo chown runner:runner "$GITHUB_WORKSPACE"
 
