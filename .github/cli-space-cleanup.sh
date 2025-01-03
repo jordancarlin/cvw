@@ -97,8 +97,8 @@ sudo mkswap /dev/mapper/runnervg-swap
 sudo swapon /dev/mapper/runnervg-swap
 
 # Create LVM logical volume
-sudo lvcreate -l 100%FREE -n runner-lv runnervg
-sudo mkfs.ext4 /dev/mapper/runnervg-runner-lv
-sudo mount /dev/mapper/runnervg-runner-lv "$GITHUB_WORKSPACE"
+sudo lvcreate -l 100%FREE -n runnerlv runnervg
+sudo mkfs.ext4 /dev/mapper/runnervg-runnerlv
+sudo mount /dev/mapper/runnervg-runnerlv "$GITHUB_WORKSPACE"
 sudo chown runner:runner "$GITHUB_WORKSPACE"
 
