@@ -1,0 +1,10 @@
+on: push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          sudo ls /mnt
+          # df -h
+          # ./.github/cli-space-cleanup.sh
+          # df -h
