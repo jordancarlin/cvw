@@ -3,6 +3,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - run: |
           df -h
           ./.github/cli-space-cleanup.sh
