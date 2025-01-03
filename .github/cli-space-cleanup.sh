@@ -74,13 +74,13 @@ sudo rm -f /mnt/swapfile
 
 # Create LVM physical volumes
 ROOT_FREE_KB=$(df --block-size=1024 --output=avail / | tail -1)
-ROOT_LVM_SIZE=$(((ROOT_FREE_KB - (30 * 1024 * 1024)) * 1024))
+ROOT_LVM_SIZE=$(((ROOT_FREE_KB - (10 * 1024 * 1024)) * 1024))
 sudo touch /pv.img && sudo fallocate -z -l $ROOT_LVM_SIZE /pv.img
 export ROOT_LOOP_DEV=$(sudo losetup --find --show /pv.img)
 sudo pvcreate -f "$ROOT_LOOP_DEV"
 
 TMP_FREE_KB=$(df --block-size=1024 --output=avail /mnt | tail -1)
-TMP_LVM_SIZE=$(((TMP_FREE_KB - (4 * 1024 * 1024)) * 1024))
+TMP_LVM_SIZE=$(((TMP_FREE_KB - (6 * 1024 * 1024)) * 1024))
 sudo touch /mnt/tmp-pv.img && sudo fallocate -z -l $TMP_LVM_SIZE /mnt/tmp-pv.img
 export TMP_LOOP_DEV=$(sudo losetup --find --show /mnt/tmp-pv.img)
 sudo pvcreate -f "$TMP_LOOP_DEV"
