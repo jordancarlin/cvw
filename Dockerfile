@@ -32,7 +32,7 @@ USER $USERNAME
 ENV RISCV=/opt/riscv
 
 # Add CVW directory to image
-COPY . /home/$USERNAME/cvw
+COPY --chown=$USERNAME:$USERNAME . /home/$USERNAME/cvw
 WORKDIR /home/$USERNAME/cvw
 
 # Install dependencies
