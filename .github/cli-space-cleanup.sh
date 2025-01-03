@@ -90,6 +90,9 @@ sudo vgcreate github-runner-vg "$ROOT_LOOP_DEV" "$TMP_LOOP_DEV"
 
 # Recreate swap
 sudo lvcreate -L 4G -n swap github-runner-vg
+sudo lvdisplay github-runner-vg/swap  # Display logical volume details for debugging
+sudo ls -l /dev/mapper  # List devices in /dev/mapper for debugging
+sudo dmsetup ls    # List device-mapper devices
 sudo mkswap /dev/mapper/github-runner-vg-swap
 sudo swapon /dev/mapper/github-runner-vg-swap
 
