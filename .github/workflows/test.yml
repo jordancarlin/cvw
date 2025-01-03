@@ -8,7 +8,9 @@ jobs:
       - run: |
           df -h
           ./.github/cli-space-cleanup.sh
+          sudo rm -rf "lost+found"
           df -h
+      - uses: actions/checkout@v4
       - run: |
           sudo ls -l
           sudo du -h --max-depth=1
