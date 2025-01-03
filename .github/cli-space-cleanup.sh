@@ -66,6 +66,9 @@
 
 ## Create LVM volume combining /mnt with / for more space
 # First disable and remove swap file on /mnt
+
+set -x
+
 sudo swapoff -a
 sudo rm -f /mnt/swapfile
 
