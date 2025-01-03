@@ -25,9 +25,23 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push docker image
-        uses: docker/build-push-action@v5
+      - name: Build and push test docker image
+        uses: docker/build-push-action@v6
         with:
+          context: .
+          build-args: |
+            BUILD_TESTS=true
+          tags: ghcr.io/jordancarlin/cvw/ubuntu22cvw:test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Test Docker Image
+        run: |
+          docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && regression-wally"
+      - name: Build and push latest docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
           tags: ghcr.io/jordancarlin/cvw/ubuntu22cvw:latest
           push: true
           cache-from: type=gha
