@@ -16,11 +16,21 @@ jobs:
         run: |
               df -h
               ./.github/scripts/cli-space-cleanup.sh
-              ./.github/scripts/cli-create-lvm.sh 20 "/var/lib/docker"
+              ./.github/scripts/cli-create-lvm.sh 20 "/docker/var/lib/docker"
               df -h
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      # Change Docker root to use LVM volume for more space
+      - name: Patch Docker Daemon data-root
+        run: |
+          DOCKER_DATA_ROOT='/docker/var/lib/docker'
+          DOCKER_DAEMON_JSON='/etc/docker/daemon.json'
+          sudo mkdir -p "${DOCKER_DATA_ROOT}"
+          sudo mkdir -p "$(dirname "${DOCKER_DAEMON_JSON}")"
+          jq --arg dataroot "${DOCKER_DATA_ROOT}" '. + {"data-root": $dataroot}' "${DOCKER_DAEMON_JSON}" > "/tmp/docker.json.tmp"
+          sudo mv "/tmp/docker.json.tmp" "${DOCKER_DAEMON_JSON}"
+          sudo systemctl restart docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to GHCR
