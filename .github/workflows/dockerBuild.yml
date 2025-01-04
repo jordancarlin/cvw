@@ -16,7 +16,7 @@ jobs:
         run: |
               df -h
               ./.github/scripts/cli-space-cleanup.sh
-              ./.github/scripts/cli-create-lvm.sh
+              ./.github/scripts/cli-create-lvm.sh 20 "/var/lib/docker"
               df -h
       - uses: actions/checkout@v4
         with:
@@ -29,7 +29,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push test docker image
+      - name: Build Docker Image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -40,7 +40,7 @@ jobs:
       - name: Test Docker Image
         run: |
           docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && make --jobs $(nproc --ignore 1) && regression-wally"
-      - name: Build and push latest docker image
+      - name: Push Docker Image
         uses: docker/build-push-action@v6
         with:
           context: .

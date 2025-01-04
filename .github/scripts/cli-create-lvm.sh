@@ -27,6 +27,7 @@
 ################################################################################################
 
 ROOT_SAVE_SPACE="${1:-10}" # in GB, needed for installing packages, etc.
+MOUNT="${2:-$GITHUB_WORKSPACE}"
 
 # First disable and remove swap file on /mnt
 sudo swapoff -a
@@ -57,6 +58,6 @@ sudo swapon /dev/mapper/runnervg-swap
 # Create LVM logical volume
 sudo lvcreate -l 100%FREE -n runnerlv runnervg
 sudo mkfs.ext4 /dev/mapper/runnervg-runnerlv
-sudo mount /dev/mapper/runnervg-runnerlv "$GITHUB_WORKSPACE"
-sudo chown runner:runner "$GITHUB_WORKSPACE"
-sudo rm -rf "$GITHUB_WORKSPACE/lost+found"
+sudo mount /dev/mapper/runnervg-runnerlv "$MOUNT"
+sudo chown runner:runner "$MOUNT"
+sudo rm -rf "$MOUNT/lost+found"
