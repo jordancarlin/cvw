@@ -27,9 +27,11 @@ jobs:
           DOCKER_DATA_ROOT='/docker/var/lib/docker'
           DOCKER_DAEMON_JSON='/etc/docker/daemon.json'
           sudo mkdir -p "${DOCKER_DATA_ROOT}"
-          sudo mkdir -p "$(dirname "${DOCKER_DAEMON_JSON}")"
-          jq --arg dataroot "${DOCKER_DATA_ROOT}" '. + {"data-root": $dataroot}' "${DOCKER_DAEMON_JSON}" > "/tmp/docker.json.tmp"
-          sudo mv "/tmp/docker.json.tmp" "${DOCKER_DAEMON_JSON}"
+          if [ ! -f "${DOCKER_DAEMON_JSON}" ]; then
+            sudo mkdir -p "$(dirname "${DOCKER_DAEMON_JSON}")"
+            echo '{}' | sudo tee "${DOCKER_DAEMON_JSON}" > /dev/null
+          fi
+          jq --arg dataroot "${DOCKER_DATA_ROOT}" '. + {"data-root": $dataroot}' "${DOCKER_DAEMON_JSON}" | sudo tee "${DOCKER_DAEMON_JSON}" > /dev/null
           sudo systemctl restart docker
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
