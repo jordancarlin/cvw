@@ -33,15 +33,13 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          build-args: |
-            BUILD_TESTS=true
           tags: ghcr.io/jordancarlin/cvw/ubuntu22cvw:test
           load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Test Docker Image
         run: |
-          docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && regression-wally"
+          docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && make --jobs $(nproc --ignore 1) && regression-wally"
       - name: Build and push latest docker image
         uses: docker/build-push-action@v6
         with:
