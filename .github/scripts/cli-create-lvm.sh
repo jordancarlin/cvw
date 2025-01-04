@@ -35,14 +35,16 @@ sudo rm -f /mnt/swapfile
 # Create / LVM physical volume
 ROOT_FREE_SPACE=$(df --block-size=1024 --output=avail / | tail -1)
 ROOT_LVM_SIZE=$(((ROOT_FREE_SPACE - (ROOT_SAVE_SPACE * 1024 * 1024)) * 1024))
-sudo fallocate -z -l $ROOT_LVM_SIZE /pv.img
-sudo pvcreate -f "$(sudo losetup --find --show /pv.img)"
+sudo touch /pv.img && sudo fallocate -z -l $ROOT_LVM_SIZE /pv.img
+ROOT_LOOP_DEV=$(sudo losetup --find --show /pv.img)
+sudo pvcreate -f "$ROOT_LOOP_DEV"
 
 # Create /mnt LVM physical volume
 MNT_FREE_SPACE=$(df --block-size=1024 --output=avail /mnt | tail -1)
 MNT_LVM_SIZE=$(((MNT_FREE_SPACE - (1 * 1024)) * 1024)) # Leave 1MB free on /mnt
-sudo fallocate -z -l $MNT_LVM_SIZE /mnt/pv.img
-sudo pvcreate -f "$(sudo losetup --find --show /mnt/pv.img)"
+sudo touch /mnt/pv.img && sudo fallocate -z -l $MNT_LVM_SIZE /mnt/pv.img
+MNT_LOOP_DEV=$(sudo losetup --find --show /mnt/pv.img)
+sudo pvcreate -f "$MNT_LOOP_DEV"
 
 # Create LVM volume group
 sudo vgcreate runnervg "$ROOT_LOOP_DEV" "$MNT_LOOP_DEV"
