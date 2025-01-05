@@ -54,7 +54,7 @@ jobs:
       - run: du -h --max-depth=1
       - name: Test Docker Image
         run: |
-          docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && make riscof zsbl --jobs $(nproc --ignore 1) && regression-wally"
+          docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && make --jobs $(nproc --ignore 1) && regression-wally"
       - run: df -h
       - run: sudo du -h --max-depth=1 /docker/var/lib/docker
       - run: du -h --max-depth=1
