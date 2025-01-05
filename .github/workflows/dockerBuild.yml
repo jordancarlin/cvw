@@ -51,7 +51,7 @@ jobs:
           cache-to: type=gha,mode=max
       - name: Test Docker Image
         run: |
-          docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && make --jobs $(nproc --ignore 1) && regression-wally"
+          docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && make riscof zsbl --jobs $(nproc --ignore 1) && regression-wally"
       - name: Push Docker Image
         uses: docker/build-push-action@v6
         with:
