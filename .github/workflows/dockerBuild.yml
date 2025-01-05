@@ -50,7 +50,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - run: df -h
-      - run: du -h --max-depth=2 /docker/var/lib/docker
+      - run: sudo du -h --max-depth=2 /docker/var/lib/docker
       - run: du -h --max-depth=1
       - name: Test Docker Image
         run: |

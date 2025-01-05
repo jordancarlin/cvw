@@ -58,6 +58,7 @@ sudo swapon /dev/mapper/runnervg-swap
 # Create LVM logical volume
 sudo lvcreate -l 100%FREE -n runnerlv runnervg
 sudo mkfs.ext4 /dev/mapper/runnervg-runnerlv
+sudo mkdir -p "$MOUNT"
 sudo mount /dev/mapper/runnervg-runnerlv "$MOUNT"
 sudo chown runner:runner "$MOUNT"
 sudo rm -rf "$MOUNT/lost+found"
