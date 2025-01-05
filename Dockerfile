@@ -6,10 +6,10 @@
 FROM ubuntu:22.04
 
 # Set metadata for image
-LABEL org.opencontainers.image.title "CVW Ubuntu 22.04 Image"
-LABEL org.opencontainers.image.description "Ubuntu 22.04 Docker image with all tools for Core-V-Wally. \n Includes RISC-V toolchain, elf2hex, QEMU, Spike, Sail, Verilator, and Buildroot."
-LABEL org.opencontainers.image.authors "Jordan Carlin <jcarlin@hmc.edu>"
-LABEL org.opencontainers.image.licenses "Apache-2.0 WITH SHL-2.1"
+LABEL org.opencontainers.image.title="CVW Ubuntu 22.04 Image"
+LABEL org.opencontainers.image.description="Ubuntu 22.04 Docker image with all tools for Core-V-Wally. \n Includes RISC-V toolchain, elf2hex, QEMU, Spike, Sail, Verilator, and Buildroot."
+LABEL org.opencontainers.image.authors="Jordan Carlin <jcarlin@hmc.edu>"
+LABEL org.opencontainers.image.licenses="Apache-2.0 WITH SHL-2.1"
 
 # Should the tests be built in the image?
 ARG BUILD_TESTS=false
