@@ -16,20 +16,6 @@ LABEL org.opencontainers.image.licenses="Apache-2.0 WITH SHL-2.1"
 SHELL ["/bin/bash", "-c"]
 ARG DEBIAN_FRONTEND=noninteractive
 
-# Create a user (wally) with sudo privileges
-ARG USERNAME=wally
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-RUN apt-get update && \
-    apt-get install -y sudo && \
-    groupadd -f --gid $USER_GID $USERNAME && \
-    useradd -m -u $USER_UID -g $USER_GID -s /bin/bash $USERNAME \
-    && usermod -aG sudo $USERNAME \
-    && echo '%sudo ALL=(ALL) NOPASSWD: ALL' | EDITOR='tee -a' visudo \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
 # Set $RISCV directory
 ENV RISCV=/opt/riscv
 
@@ -39,11 +25,22 @@ WORKDIR /home/$USERNAME/cvw
 
 # Install tools
 RUN ./bin/wally-tool-chain-install.sh --clean \
+    # Purge installation caches
     && pip cache purge \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && rm -rf $RISCV/buildroot/output/build \
+    # Remove buildroot source code and intermediate files
+    && bash -c 'shopt -s extglob dotglob; cd $RISCV/buildroot && rm -rf !("output"); cd $RISCV/buildroot/output && rm -rf !("images")' \
+    # Remove logs
     && rm -rf $RISCV/logs
+
+# Create a user (wally) with sudo privileges
+ARG USERNAME=wally
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd -f --gid $USER_GID $USERNAME && \
+    useradd -l -m -u $USER_UID -g $USER_GID -s /bin/bash $USERNAME
 
 # Change to the new user
 USER $USERNAME
