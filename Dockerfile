@@ -11,9 +11,6 @@ LABEL org.opencontainers.image.description="Ubuntu 22.04 Docker image with all t
 LABEL org.opencontainers.image.authors="Jordan Carlin <jcarlin@hmc.edu>"
 LABEL org.opencontainers.image.licenses="Apache-2.0 WITH SHL-2.1"
 
-# Should the tests be built in the image?
-ARG BUILD_TESTS=false
-
 # Allow execution of more complex bash commands
 SHELL ["/bin/bash", "-c"]
 ARG DEBIAN_FRONTEND=noninteractive
@@ -32,9 +29,6 @@ RUN apt-get update && \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Change to the new user
-USER $USERNAME
-
 # Set $RISCV directory
 ENV RISCV=/opt/riscv
 
@@ -42,22 +36,16 @@ ENV RISCV=/opt/riscv
 COPY --chown=$USERNAME:$USERNAME . /home/$USERNAME/cvw
 WORKDIR /home/$USERNAME/cvw
 
-# Install dependencies
-RUN sudo ./bin/wally-package-install.sh \
+# Install tools
+RUN ./bin/wally-tool-chain-install.sh --clean \
     && pip cache purge \
-    && sudo apt-get clean \
-    && sudo rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf $RISCV/buildroot/output/build \
+    && rm -rf $RISCV/logs
 
-# Install main tools
-RUN sudo ./bin/wally-tool-chain-install.sh --clean \
-    && sudo rm -rf $RISCV/buildroot/output/build \
-    && sudo rm -rf $RISCV/logs
-
-# Build tests
-RUN if [ "$BUILD_TESTS" == "true" ]; then \
-    source setup.sh \
-    && make --jobs $(nproc); \
-    fi
+# Change to the new user
+USER $USERNAME
 
 # Set default command to already have setup script sourced
 CMD ["bash", "-c", "source setup.sh && exec /bin/bash"]
