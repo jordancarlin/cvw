@@ -2,6 +2,11 @@
 # Jordan Carlin jcarlin@hmc.edu  July 2024
 # SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
+# User options
+ARG USERNAME=wally
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
 # Use latest Ubuntu 22.04 LTS release as base for image
 FROM ubuntu:22.04
 
@@ -30,17 +35,16 @@ RUN ./bin/wally-tool-chain-install.sh --clean \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     # Remove buildroot source code and intermediate files
-    && bash -c 'shopt -s extglob dotglob; cd $RISCV/buildroot && rm -rf !("output"); cd $RISCV/buildroot/output && rm -rf !("images")' \
+    && mkdir -p $RISCV/buildroot-temp/output \
+    && mv $RISCV/buildroot/output/images $RISCV/buildroot-temp/output/images \
+    && rm -rf $RISCV/buildroot \
+    && mv $RISCV/buildroot-temp $RISCV/buildroot \
     # Remove logs
     && rm -rf $RISCV/logs
 
-# Create a user (wally) with sudo privileges
-ARG USERNAME=wally
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-RUN groupadd -f --gid $USER_GID $USERNAME && \
-    useradd -l -m -u $USER_UID -g $USER_GID -s /bin/bash $USERNAME
+# Create a user
+RUN groupadd -f --gid "$USER_GID" "$USERNAME" && \
+    useradd -l -m -u "$USER_UID" -g "$USER_GID" -s /bin/bash "$USERNAME"
 
 # Change to the new user
 USER $USERNAME
