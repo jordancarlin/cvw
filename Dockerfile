@@ -43,8 +43,8 @@ RUN ./bin/wally-tool-chain-install.sh --clean \
     && rm -rf $RISCV/logs
 
 # Create a user
-RUN groupadd -f --gid "$USER_GID" "$USERNAME" && \
-    useradd -l -m -u "$USER_UID" -g "$USER_GID" -s /bin/bash "$USERNAME"
+RUN groupadd -f --gid ${USER_GID} ${USERNAME} && \
+    useradd -l -m -u ${USER_UID} -g ${USER_GID} -s /bin/bash ${USERNAME}
 
 # Change to the new user
 USER $USERNAME
