@@ -5,7 +5,7 @@
 # User options
 ARG USERNAME=wally
 ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+ARG USER_GID=${USER_UID}
 
 # Use latest Ubuntu 22.04 LTS release as base for image
 FROM ubuntu:22.04
