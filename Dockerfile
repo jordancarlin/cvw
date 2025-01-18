@@ -2,13 +2,13 @@
 # Jordan Carlin jcarlin@hmc.edu  July 2024
 # SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
+# Use latest Ubuntu 22.04 LTS release as base for image
+FROM ubuntu:22.04
+
 # User options
 ARG USERNAME=wally
 ARG USER_UID=1000
 ARG USER_GID=${USER_UID}
-
-# Use latest Ubuntu 22.04 LTS release as base for image
-FROM ubuntu:22.04
 
 # Set metadata for image
 LABEL org.opencontainers.image.title="CVW Ubuntu 22.04 Image"
@@ -23,6 +23,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 # Set $RISCV directory
 ENV RISCV=/opt/riscv
+
+# Create a user
+RUN groupadd -f --gid ${USER_GID} ${USERNAME} && \
+    useradd -l -m -u ${USER_UID} -g ${USER_GID} -s /bin/bash ${USERNAME}
 
 # Add CVW directory to image
 COPY --chown=$USERNAME:$USERNAME . /home/$USERNAME/cvw
@@ -41,10 +45,6 @@ RUN ./bin/wally-tool-chain-install.sh --clean \
     && mv $RISCV/buildroot-temp $RISCV/buildroot \
     # Remove logs
     && rm -rf $RISCV/logs
-
-# Create a user
-RUN groupadd -f --gid ${USER_GID} ${USERNAME} && \
-    useradd -l -m -u ${USER_UID} -g ${USER_GID} -s /bin/bash ${USERNAME}
 
 # Change to the new user
 USER $USERNAME
