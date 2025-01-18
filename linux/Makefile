@@ -21,7 +21,7 @@ OBJDUMPS := $(foreach name, $(OBJDUMPS), $(DIS)/$(name).objdump)
 
 all: check_environment check_write_permissions clean download Image disassemble install dumptvs
 
-check_environment: $(RISCV)
+check_environment: $(RISCV) $(WALLY)
 ifeq ($(findstring :$(RISCV)/lib:,:$(LD_LIBRARY_PATH):),)
 	@(echo "ERROR: Your environment variables are not set correctly." >&2 \
 	&& echo "Make sure to source setup.sh or install buildroot using the wally-tool-chain-install.sh script." >&2 \
@@ -65,6 +65,9 @@ $(IMAGES):
 $(RISCV):
 	@ echo "ERROR: No $(RISCV) directory. Make sure you have installed the Wally Toolchain."
 	@ echo "and sourced setup.sh"
+
+$(WALLY):
+	@ echo "ERROR: $$WALLY is not set. Make sure you have sourced setup.sh"
 
 # Disassembly rules ---------------------------------------------------
 disassemble: check_environment
