@@ -173,6 +173,9 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
   // Fetch Buffer Stall
   logic                          FetchBufferStallF;
 
+  // Dispatch signals
+  logic                          FpuOp, MduOp, AluOp, MemOp;
+
   // instruction fetch unit: PC, branch prediction, instruction cache
   ifu #(P) ifu(.clk, .reset,
     .StallF, .StallD, .StallE, .StallM, .StallW, .FlushD, .FlushE, .FlushM, .FlushW,
@@ -194,7 +197,10 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
     .PrivilegeModeW, .PTE, .PageType, .SATP_REGW, .STATUS_MXR, .STATUS_SUM, .STATUS_MPRV,
     .STATUS_MPP, .ENVCFG_PBMTE, .ENVCFG_ADUE, .ITLBWriteF, .sfencevmaM, .ITLBMissOrUpdateAF,
     // pmp/pma (inside mmu) signals. 
-    .PMPCFG_ARRAY_REGW,  .PMPADDR_ARRAY_REGW, .InstrAccessFaultF); 
+    .PMPCFG_ARRAY_REGW,  .PMPADDR_ARRAY_REGW, .InstrAccessFaultF);
+
+  // main decoder
+  dispatch #(P) dispatch (.clk, .reset, .InstrD, .FpuOp, .MduOp, .AluOp, .MemOp);
     
   // integer execution unit: integer register file, datapath and controller
   ieu #(P) ieu(.clk, .reset,
@@ -330,10 +336,12 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
 
   // floating point unit
   if (P.F_SUPPORTED) begin:fpu
+    logic [31:0] InstrDFpu;
+    assign InstrDFpu = FpuOp ? InstrD : '0;
     fpu #(P) fpu(
       .clk, .reset,
       .FRM_REGW,                           // Rounding mode from CSR
-      .InstrD,                             // instruction from IFU
+      .InstrD(InstrDFpu),                  // instruction from IFU
       .ReadDataW(ReadDataW[P.FLEN-1:0]),   // Read data from memory
       .ForwardedSrcAE,                     // Integer input being processed (from IEU)
       .StallE, .StallM, .StallW,           // stall signals from HZU
