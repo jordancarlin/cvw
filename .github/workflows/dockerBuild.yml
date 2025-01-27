@@ -1,0 +1,58 @@
+name: Build Docker Image
+on: [workflow_dispatch, push]
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  docker_build:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+      - name: Free up storage
+        run: |
+              df -h
+              ./.github/scripts/cli-space-cleanup.sh
+              ./.github/scripts/cli-create-lvm.sh 20 "/docker/var/lib/docker"
+              df -h
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      # Change Docker root to use LVM volume for more space
+      - name: Patch Docker Daemon data-root
+        run: |
+          DOCKER_DATA_ROOT='/docker/var/lib/docker'
+          DOCKER_DAEMON_JSON='/etc/docker/daemon.json'
+          sudo mkdir -p "${DOCKER_DATA_ROOT}"
+          if [ ! -f "${DOCKER_DAEMON_JSON}" ]; then
+            sudo mkdir -p "$(dirname "${DOCKER_DAEMON_JSON}")"
+            echo '{}' | sudo tee "${DOCKER_DAEMON_JSON}" > /dev/null
+          fi
+          jq --arg dataroot "${DOCKER_DATA_ROOT}" '. + {"data-root": $dataroot}' "${DOCKER_DAEMON_JSON}" | sudo tee "${DOCKER_DAEMON_JSON}" > /dev/null
+          sudo systemctl restart docker
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          tags: ghcr.io/jordancarlin/cvw/ubuntu22cvw:test
+          load: true
+      - name: Test Docker Image
+        run: |
+          docker run --rm ghcr.io/jordancarlin/cvw/ubuntu22cvw:test /bin/bash -c "source setup.sh && make --jobs $(nproc --ignore 1) && regression-wally"
+      - name: Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          tags: ghcr.io/jordancarlin/cvw/ubuntu22cvw:latest
+          push: true
