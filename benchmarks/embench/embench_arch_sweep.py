@@ -5,10 +5,10 @@
 
 # Run embench on a variety of architectures and collate results
 
-import os
-from datetime import datetime
-import re
 import collections
+import os
+import re
+from datetime import datetime
 
 archs = ["rv32i_zicsr", "rv32im_zicsr", "rv32imc_zicsr", "rv32imc_zba_zbb_zbc_zbs_zicsr", "rv32imafdc_zba_zbb_zbc_zbs_zicsr"]
 
@@ -30,12 +30,8 @@ def tabulate_arch_sweep(directory):
             file = case+"_"+arch+".json"
             file_path = os.path.join(directory, file)
             lines = []
-            try:
-                f = open(file_path, "r")
+            with open(file_path) as f:
                 lines = f.readlines()
-            except:
-                f.close()
-                #print(file_path+" does not exist")
             for line in lines:
                 #print("File: "+file+" Line: "+line)
                 #p = re.compile('".*" : .*,')
@@ -43,8 +39,8 @@ def tabulate_arch_sweep(directory):
                 match = re.search(p, line)
                 if match:
                     prog = match.group(1)
-                    result = match.group(2);
-                    d[arch][prog] = result;
+                    result = match.group(2)
+                    d[arch][prog] = result
                     #print(match.group(1)+" " + match.group(2))
             f.close()
         for arch in [""] + archs:
@@ -53,7 +49,7 @@ def tabulate_arch_sweep(directory):
         for prog in d[archs[0]]:
             print(prog, end="\t")
             for arch in archs:
-                entry = d[arch].get(prog, "n/a");
+                entry = d[arch].get(prog, "n/a")
                 print (entry, end="\t")
             print("")
         print("New geo mean", end="\t")
@@ -68,9 +64,9 @@ def run_arch_sweep():
     current_date = datetime.now()
     # Format date as a string in the format YYYYMMDD
     date_string = current_date.strftime('%Y%m%d_%H%M%S')
-    dir = "run_"+date_string
+    target_dir = "run_"+date_string
     # Create a directory with the date string as its name
-    os.mkdir(dir)
+    os.mkdir(target_dir)
 
     # make a directory with the current date as its name 
 
@@ -79,8 +75,8 @@ def run_arch_sweep():
         os.system("make clean")
         os.system("make run ARCH="+arch)
         for res in ["SizeOpt_size", "SizeOpt_speed", "SpeedOpt_size", "SpeedOpt_speed"]:
-            os.system("mv -f wally"+res+".json "+dir+"/wally"+res+"_"+arch+".json")
-    return dir
+            os.system("mv -f wally"+res+".json "+target_dir+"/wally"+res+"_"+arch+".json")
+    return target_dir
 
 directory = run_arch_sweep()
 #directory = "run_20231120_072037-caches"
