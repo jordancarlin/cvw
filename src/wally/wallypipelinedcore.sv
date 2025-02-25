@@ -48,7 +48,7 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
    input  logic                  ExternalStall
 );
 
-  logic                          StallF, StallD, StallE, StallM, StallW;
+  logic                          StallF, StallD, StallE, StallM, StallW, StallFBF;
   logic                          FlushD, FlushE, FlushM, FlushW;
   logic                          TrapM, RetM;
 
@@ -178,7 +178,7 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
 
   // instruction fetch unit: PC, branch prediction, instruction cache
   ifu #(P) ifu(.clk, .reset,
-    .StallF, .StallD, .StallE, .StallM, .StallW, .FlushD, .FlushE, .FlushM, .FlushW,
+    .StallF, .StallD, .StallE, .StallM, .StallW, .StallFBF, .FlushD, .FlushE, .FlushM, .FlushW,
     .InstrValidE, .InstrValidD,
     .BranchD, .BranchE, .JumpD, .JumpE, .ICacheStallF,
     // Fetch
@@ -288,7 +288,7 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
     .DivBusyE, .FDivBusyE,
     .wfiM, .IntPendingM,
     // Stall & flush outputs
-    .StallF, .StallD, .StallE, .StallM, .StallW,
+    .StallF, .StallD, .StallE, .StallM, .StallW, .StallFBF,
     .FlushD, .FlushE, .FlushM, .FlushW);    
 
   // privileged unit
