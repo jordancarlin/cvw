@@ -250,6 +250,9 @@ string arch32vm_sv32[] = '{
   "rv32i_m/vm_sv32/src/satp_access_tests.S",
   "rv32i_m/vm_sv32/src/vm_A_and_D_S_mode.S",
   "rv32i_m/vm_sv32/src/vm_A_and_D_U_mode.S",
+  "rv32i_m/vm_sv32/src/vm_U_Bit_set_U_mode.S",
+  "rv32i_m/vm_sv32/src/vm_U_Bit_unset_S_mode.S",
+  "rv32i_m/vm_sv32/src/vm_U_Bit_unset_U_mode.S",
   "rv32i_m/vm_sv32/src/vm_invalid_pte_S_mode.S",
   "rv32i_m/vm_sv32/src/vm_invalid_pte_U_mode.S",
   "rv32i_m/vm_sv32/src/vm_misaligned_S_mode.S",
@@ -267,10 +270,7 @@ string arch32vm_sv32[] = '{
   "rv32i_m/vm_sv32/src/vm_reserved_rwx_pte_S_mode.S",
   "rv32i_m/vm_sv32/src/vm_reserved_rwx_pte_U_mode.S",
   "rv32i_m/vm_sv32/src/vm_sum_set_S_mode.S",
-  "rv32i_m/vm_sv32/src/vm_sum_unset_S_mode.S",
-  "rv32i_m/vm_sv32/src/vm_U_Bit_set_U_mode.S",
-  "rv32i_m/vm_sv32/src/vm_U_Bit_unset_S_mode.S",
-  "rv32i_m/vm_sv32/src/vm_U_Bit_unset_U_mode.S"
+  "rv32i_m/vm_sv32/src/vm_sum_unset_S_mode.S"
 };
 
 string arch64priv[] = '{
@@ -537,7 +537,6 @@ string arch64cpriv[] = '{
   "rv64i_m/C/src/cebreak-01.S"
 };
 
-// Tests commented out pending riscv-arch-test issue #590
 string arch64zcd[] = '{
   // `RISCVARCHTEST,
   "rv64i_m/D_Zcd/src/c.fld-01.S",
@@ -2689,13 +2688,21 @@ string arch64zfad[] = '{
   "rv64i_m/D_Zfa/src/fcvtmod.w.d_b29-01.S",
   "rv64i_m/D_Zfa/src/fleq_b1-01.S",
   "rv64i_m/D_Zfa/src/fleq_b19-01.S",
+  "rv64i_m/D_Zfa/src/fleq.d_b1-01.S",
+  "rv64i_m/D_Zfa/src/fleq.d_b19-01.S",
   "rv64i_m/D_Zfa/src/fli.d-01.S",
   "rv64i_m/D_Zfa/src/fltq_b1-01.S",
   "rv64i_m/D_Zfa/src/fltq_b19-01.S",
+  "rv64i_m/D_Zfa/src/fltq.d_b1-01.S",
+  "rv64i_m/D_Zfa/src/fltq.d_b19-01.S",
   "rv64i_m/D_Zfa/src/fminm_b1-01.S",
   "rv64i_m/D_Zfa/src/fminm_b19-01.S",
+  "rv64i_m/D_Zfa/src/fminm.d_b1-01.S",
+  "rv64i_m/D_Zfa/src/fminm.d_b19-01.S",
   "rv64i_m/D_Zfa/src/fmaxm_b1-01.S",
-  "rv64i_m/D_Zfa/src/fmaxm_b19-01.S"
+  "rv64i_m/D_Zfa/src/fmaxm_b19-01.S",
+  "rv64i_m/D_Zfa/src/fmaxm.d_b1-01.S",
+  "rv64i_m/D_Zfa/src/fmaxm.d_b19-01.S"
 };
 
 string arch32d_fma[] = '{
@@ -3431,20 +3438,18 @@ string arch32cpriv[] = '{
   "rv32i_m/C/src/cebreak-01.S"
 };
 
-// Tests commented out pending riscv-arch-test issue #590
 string arch32zcf[] = '{
   // `RISCVARCHTEST,
-  // "rv32i_m/F_Zcf/src/c.flw-01.S",
-  // "rv32i_m/F_Zcf/src/c.flwsp-01.S",
-  // "rv32i_m/F_Zcf/src/c.fsw-01.S",
+  "rv32i_m/F_Zcf/src/c.flw-01.S",
+  "rv32i_m/F_Zcf/src/c.flwsp-01.S",
+  "rv32i_m/F_Zcf/src/c.fsw-01.S",
   "rv32i_m/F_Zcf/src/c.fswsp-01.S"
 };
 
-// Tests commented out pending riscv-arch-test issue #590
 string arch32zcd[] = '{
   // `RISCVARCHTEST,
   "rv32i_m/D_Zcd/src/c.fld-01.S",
-  // "rv32i_m/D_Zcd/src/c.fldsp-01.S",
+  "rv32i_m/D_Zcd/src/c.fldsp-01.S",
   "rv32i_m/D_Zcd/src/c.fsd-01.S",
   "rv32i_m/D_Zcd/src/c.fsdsp-01.S"
 };

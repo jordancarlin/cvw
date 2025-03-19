@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import sys
 import re
+import sys
+
 
 def usage():
     print("Usage: ./renumber.py <input xdc file> <output xdc file>")
@@ -13,7 +14,7 @@ def main(args):
     probenum = 0
     countLines = 1
         
-    with open(args[0],'r') as xdcfile, open(args[1], 'w') as outfile:
+    with open(args[0]) as xdcfile, open(args[1], 'w') as outfile:
         Lines = xdcfile.readlines()
         for line in Lines:
             t = re.sub("probe[0-9]+", f"probe{probenum}",line)

@@ -58,6 +58,11 @@ module testbench;
     import idvPkg::*;
     import rvviApiPkg::*;
     import idvApiPkg::*;
+    `define ENABLE_RVVI_TRACE
+  `endif
+
+  `ifdef FCOV
+    `define ENABLE_RVVI_TRACE
   `endif
 
   `ifdef VERILATOR
@@ -432,6 +437,8 @@ module testbench;
       end else if (ElfFile != "none") begin
         `ifdef USE_TREK_DV
           $display("Breker test is done.");
+        `elsif FCOV
+          $display("Functional coverage test complete.");
         `else
           $display("Single Elf file tests are not signatured verified.");
         `endif
@@ -684,9 +691,9 @@ module testbench;
     loggers (clk, reset, DCacheFlushStart, DCacheFlushDone, memfilename, TEST);
 
   // track the current function or global label
-  if (DEBUG > 0 | ((PrintHPMCounters | BPRED_LOGGER) & P.ZICNTR_SUPPORTED)) begin : FunctionName
-    FunctionName #(P) FunctionName(.reset(reset_ext | TestBenchReset),
-			      .clk(clk), .ProgramAddrMapFile(ProgramAddrMapFile), .ProgramLabelMapFile(ProgramLabelMapFile));
+  if (DEBUG > 0 | ((PrintHPMCounters | BPRED_LOGGER) & P.ZICNTR_SUPPORTED)) begin : functionName
+    functionName #(P) functionName(.reset(reset_ext | TestBenchReset),
+            .clk(clk), .ProgramAddrMapFile(ProgramAddrMapFile), .ProgramLabelMapFile(ProgramLabelMapFile));
   end
 
   // Append UART output to file for tests
@@ -710,11 +717,11 @@ module testbench;
 
   always @(posedge clk) begin
   //  if (reset) PrevPCZero <= 0;
-  //  else if (dut.core.InstrValidM) PrevPCZero <= (FunctionName.PCM == 0 & dut.core.ifu.InstrM == 0);
+  //  else if (dut.core.InstrValidM) PrevPCZero <= (functionName.PCM == 0 & dut.core.ifu.InstrM == 0);
     TestComplete <= ((InstrM == 32'h6f) & dut.core.InstrValidM ) |
 		   ((dut.core.lsu.IEUAdrM == ProgramAddrLabelArray["tohost"] & dut.core.lsu.IEUAdrM != 0) & InstrMName == "SW"); // |
-    //   (FunctionName.PCM == 0 & dut.core.ifu.InstrM == 0 & dut.core.InstrValidM & PrevPCZero));
-   // if (FunctionName.PCM == 0 & dut.core.ifu.InstrM == 0 & dut.core.InstrValidM & PrevPCZero)
+    //   (functionName.PCM == 0 & dut.core.ifu.InstrM == 0 & dut.core.InstrValidM & PrevPCZero));
+   // if (functionName.PCM == 0 & dut.core.ifu.InstrM == 0 & dut.core.InstrValidM & PrevPCZero)
     //  $error("Program fetched illegal instruction 0x00000000 from address 0x00000000 twice in a row.  Usually due to fault with no fault handler.");
   end
 
@@ -731,24 +738,29 @@ module testbench;
     end
 end
 
+// RVVI trace for functional coverage and lockstep
+`ifdef ENABLE_RVVI_TRACE
+  rvviTrace #(.XLEN(P.XLEN), .FLEN(P.FLEN)) rvvi();
+  wallyTracer #(P) wallyTracer(rvvi);
+`endif
+
+// Functional coverage
+`ifdef FCOV
+  cvw_arch_verif cvw_arch_verif(rvvi);
+`endif
+
   ////////////////////////////////////////////////////////////////////////////////
   // ImperasDV Co-simulator hooks
   ////////////////////////////////////////////////////////////////////////////////
 `ifdef USE_IMPERAS_DV
 
-  rvviTrace #(.XLEN(P.XLEN), .FLEN(P.FLEN)) rvvi();
-  wallyTracer #(P) wallyTracer(rvvi);
-
-  trace2log idv_trace2log(rvvi);
-  trace2cov idv_trace2cov(rvvi);
-
   // enabling of comparison types
   trace2api #(.CMP_PC      (1),
               .CMP_INS     (1),
               .CMP_GPR     (1),
-              .CMP_FPR     (1),
+              .CMP_FPR     (P.F_SUPPORTED),
               .CMP_VR      (0),
-              .CMP_CSR     (1)
+              .CMP_CSR     (P.ZICSR_SUPPORTED)
               ) idv_trace2api(rvvi);
 
   string filename;
@@ -880,13 +892,6 @@ end
     end
     if (P.SPI_SUPPORTED) begin
       void'(rvviRefMemorySetVolatile(P.SPI_BASE, (P.SPI_BASE + P.SPI_RANGE)));
-    end
-
-    if(P.XLEN==32) begin
-      void'(rvviRefCsrSetVolatile(0, 32'hC80));   // CYCLEH
-      void'(rvviRefCsrSetVolatile(0, 32'hB80));   // MCYCLEH
-      void'(rvviRefCsrSetVolatile(0, 32'hC82));   // INSTRETH
-      void'(rvviRefCsrSetVolatile(0, 32'hB82));   // MINSTRETH
     end
 
     void'(rvviRefCsrSetVolatile(0, 32'h104));   // SIE - Temporary!!!!
