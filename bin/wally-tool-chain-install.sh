@@ -30,6 +30,16 @@
 ## and limitations under the License.
 ################################################################################################
 
+# Versions/tags/hashes of the tools to be installed
+RISCV_GNU_TOOLCHAIN_VERSION=ec4e967e3bc4ca71de3abb057f776fd8e08f141f # 4/30/2025: gcc 14.2.0, binutils 2.44
+ELF2HEX_VERSION=f28a3103c06131ed3895052b1341daf4ca0b1c9c # 4/30/2025
+QEMU_VERSION=v10.0.0 # 4/30/2025
+SPIKE_VERSION=9004e8eace1518908079014b4258df913b463297 # 4/28/2025
+SAIL_COMPILER_VERSION=0.19 # 4/30/2025
+SAIL_RISCV_MODEL_VERSION=0.7
+VERILATOR_VERSION=v5.036 # 4/30/2025
+CVW_VERSION=f90a60348a417af9b9dfc4ec8097ed3ffd5eaa0d # 4/30/2025 (used to download site-setup.sh)
+
 # Increasing NUM_THREADS will speed up parallel compilation of the tools
 NUM_THREADS=$(nproc --ignore 1) # One less than the total number of threads
 
@@ -80,14 +90,21 @@ git_check() {
         fi
     fi
 
-    # Get the current HEAD commit hash and the remote branch commit hash
+    # Get the current HEAD commit hash
     cd "$repo"
+    local current_head=$(git rev-parse HEAD)
+
+    # Update to desired version of repo and get new HEAD commit hash
     git fetch
-    local local_head=$(git rev-parse HEAD)
-    local remote_head=$(git rev-parse origin/"$branch")
+    git reset --hard
+    git clean -f
+    git checkout "$branch"
+    git pull
+    git submodule update
+    local new_head=$(git rev-parse HEAD)
 
     # Check if the git repository is not up to date or the specified file does not exist
-    if [[ "$local_head" != "$remote_head" ]]; then
+    if [[ "$current_head" != "$new_head" ]]; then
         echo "$repo is not up to date. Updating now."
         true
     elif [[ ! -e $check ]]; then
@@ -316,12 +333,8 @@ fi
 section_header "Installing/Updating RISC-V GNU Toolchain"
 STATUS="riscv-gnu-toolchain"
 cd "$RISCV"
-if git_check "riscv-gnu-toolchain" "https://github.com/riscv/riscv-gnu-toolchain" "$RISCV/riscv-gnu-toolchain/stamps/build-gcc-newlib-stage2"; then
+if git_check "riscv-gnu-toolchain" "https://github.com/riscv/riscv-gnu-toolchain" "$RISCV/riscv-gnu-toolchain/stamps/build-gcc-newlib-stage2" $RISCV_GNU_TOOLCHAIN_VERSION; then
     cd "$RISCV"/riscv-gnu-toolchain
-    git reset --hard && git clean -f && git checkout master && git pull && git submodule update
-    # sed commands needed to fix broken shallow cloning of submodules
-    sed -i '/shallow = true/d' .gitmodules
-    sed -i 's/--depth 1//g' Makefile.in
     ./configure --prefix="${RISCV}" --with-multilib-generator="rv32e-ilp32e--;rv32i-ilp32--;rv32im-ilp32--;rv32iac-ilp32--;rv32imac-ilp32--;rv32imafc-ilp32f--;rv32imafdc-ilp32d--;rv64i-lp64--;rv64ic-lp64--;rv64iac-lp64--;rv64imac-lp64--;rv64imafdc-lp64d--;rv64im-lp64--;"
     make -j "${NUM_THREADS}" 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
     if [ "$clean" ]; then
@@ -345,9 +358,8 @@ section_header "Installing/Updating elf2hex"
 STATUS="elf2hex"
 cd "$RISCV"
 export PATH=$RISCV/bin:$PATH
-if git_check "elf2hex" "https://github.com/sifive/elf2hex.git" "$RISCV/bin/riscv64-unknown-elf-elf2bin"; then
+if git_check "elf2hex" "https://github.com/sifive/elf2hex.git" "$RISCV/bin/riscv64-unknown-elf-elf2bin" $ELF2HEX_VERSION; then
     cd "$RISCV"/elf2hex
-    git reset --hard && git clean -f && git checkout master && git pull
     autoreconf -i
     ./configure --target=riscv64-unknown-elf --prefix="$RISCV"
     make 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
@@ -367,9 +379,8 @@ fi
 section_header "Installing/Updating QEMU"
 STATUS="qemu"
 cd "$RISCV"
-if git_check "qemu" "https://github.com/qemu/qemu" "$RISCV/include/qemu-plugin.h"; then
+if git_check "qemu" "https://github.com/qemu/qemu" "$RISCV/include/qemu-plugin.h" $QEMU_VERSION; then
     cd "$RISCV"/qemu
-    git reset --hard && git clean -f && git checkout master && git pull
     ./configure --target-list=riscv64-softmmu --prefix="$RISCV"
     make -j "${NUM_THREADS}" 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
     make install 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
@@ -388,9 +399,8 @@ fi
 section_header "Installing/Updating SPIKE"
 STATUS="spike"
 cd "$RISCV"
-if git_check "riscv-isa-sim" "https://github.com/riscv-software-src/riscv-isa-sim" "$RISCV/lib/pkgconfig/riscv-riscv.pc"; then
+if git_check "riscv-isa-sim" "https://github.com/riscv-software-src/riscv-isa-sim" "$RISCV/lib/pkgconfig/riscv-riscv.pc" $SPIKE_VERSION; then
     cd "$RISCV"/riscv-isa-sim
-    git reset --hard && git clean -f && git checkout master && git pull
     mkdir -p build
     cd build
     ../configure --prefix="$RISCV"
@@ -413,10 +423,9 @@ fi
 section_header "Installing/Updating Verilator"
 STATUS="verilator"
 cd "$RISCV"
-if git_check "verilator" "https://github.com/verilator/verilator" "$RISCV/share/pkgconfig/verilator.pc"; then
+if git_check "verilator" "https://github.com/verilator/verilator" "$RISCV/share/pkgconfig/verilator.pc" $VERILATOR_VERSION; then
     unset VERILATOR_ROOT
     cd "$RISCV"/verilator
-    git reset --hard && git clean -f && git checkout master && git pull
     autoconf
     ./configure --prefix="$RISCV"
     make -j "${NUM_THREADS}" 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
@@ -439,7 +448,7 @@ fi
 section_header "Installing/Updating Sail Compiler"
 STATUS="sail_compiler"
 cd "$RISCV"
-wget -nv --retry-connrefused $retry_on_host_error --output-document=sail.tar.gz https://github.com/rems-project/sail/releases/latest/download/sail.tar.gz
+wget -nv --retry-connrefused $retry_on_host_error --output-document=sail.tar.gz https://github.com/rems-project/sail/releases/download/$SAIL_COMPILER_VERSION-linux-binary/sail.tar.gz
 tar xz --directory="$RISCV" --strip-components=1 -f sail.tar.gz
 rm -f sail.tar.gz
 echo -e "${SUCCESS_COLOR}Sail Compiler successfully installed/updated!${ENDC}"
@@ -448,9 +457,8 @@ echo -e "${SUCCESS_COLOR}Sail Compiler successfully installed/updated!${ENDC}"
 # The RISC-V Sail Model is the golden reference model for RISC-V. It is written in Sail (described above)
 section_header "Installing/Updating RISC-V Sail Model"
 STATUS="riscv-sail-model"
-if git_check "sail-riscv" "https://github.com/riscv/sail-riscv.git" "$RISCV/bin/riscv_sim_rv32d"; then
+if git_check "sail-riscv" "https://github.com/riscv/sail-riscv.git" "$RISCV/bin/riscv_sim_rv32d" $SAIL_RISCV_MODEL_VERSION; then
     cd "$RISCV"/sail-riscv
-    git reset --hard && git clean -f && git checkout master && git pull
     cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="$RISCV" -GNinja 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
     cmake --build build 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
     cmake --install build 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
@@ -513,8 +521,8 @@ section_header "Downloading Site Setup Script"
 STATUS="site-setup_scripts"
 cd "$RISCV"
 if [ ! -e "${RISCV}"/site-setup.sh ]; then
-    wget -nv --retry-connrefused $retry_on_host_error https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.sh
-    wget -nv --retry-connrefused $retry_on_host_error https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.csh
+    wget -nv --retry-connrefused $retry_on_host_error https://raw.githubusercontent.com/openhwgroup/cvw/$CVW_VERSION/site-setup.sh
+    wget -nv --retry-connrefused $retry_on_host_error https://raw.githubusercontent.com/openhwgroup/cvw/$CVW_VERSION/site-setup.csh
     echo -e "${SUCCESS_COLOR}Site setup script successfully downloaded!${ENDC}"
     echo -e "${WARNING_COLOR}Make sure to edit the environment variables in $RISCV/site-setup.sh (or .csh) to point to your installation of EDA tools and licensce files.${ENDC}"
 else
