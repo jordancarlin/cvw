@@ -307,6 +307,25 @@ if (( UBUNTU_VERSION == 20  || DEBIAN_VERSION == 11 )); then
     fi
 fi
 
+
+
+# Download site-setup scripts
+# The site-setup script is used to set up the environment for the RISC-V tools and EDA tools by setting
+# the PATH and other environment variables. It also sources the Python virtual environment.
+section_header "Downloading Site Setup Script"
+STATUS="site-setup_scripts"
+cd "$RISCV"
+if [ ! -e "${RISCV}"/site-setup.sh ]; then
+    wget -nv --retry-connrefused $retry_on_host_error https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.sh
+    wget -nv --retry-connrefused $retry_on_host_error https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.csh
+    echo -e "${SUCCESS_COLOR}Site setup script successfully downloaded!${ENDC}"
+    echo -e "${WARNING_COLOR}Make sure to edit the environment variables in $RISCV/site-setup.sh (or .csh) to point to your installation of EDA tools and licensce files.${ENDC}"
+else
+    echo -e "${OK_COLOR}Site setup script already exists. Not checking for updates to avoid overwritng modifications."
+    echo -e "You may need to manually update it if there were changes upstream.${ENDC}"
+fi
+
+
 # RISC-V GNU Toolchain (https://github.com/riscv-collab/riscv-gnu-toolchain)
 # The RISC-V GNU Toolchain includes the GNU Compiler Collection (gcc), GNU Binutils, Newlib,
 # and the GNU Debugger Project (gdb). It is a collection of tools used to compile RISC-V programs.
@@ -503,23 +522,6 @@ if [ ! "$no_buidroot" ]; then
     fi
 else
     echo -e "${OK_COLOR}Skipping Buildroot and Linux testvectors.${ENDC}"
-fi
-
-
-# Download site-setup scripts
-# The site-setup script is used to set up the environment for the RISC-V tools and EDA tools by setting
-# the PATH and other environment variables. It also sources the Python virtual environment.
-section_header "Downloading Site Setup Script"
-STATUS="site-setup_scripts"
-cd "$RISCV"
-if [ ! -e "${RISCV}"/site-setup.sh ]; then
-    wget -nv --retry-connrefused $retry_on_host_error https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.sh
-    wget -nv --retry-connrefused $retry_on_host_error https://raw.githubusercontent.com/openhwgroup/cvw/main/site-setup.csh
-    echo -e "${SUCCESS_COLOR}Site setup script successfully downloaded!${ENDC}"
-    echo -e "${WARNING_COLOR}Make sure to edit the environment variables in $RISCV/site-setup.sh (or .csh) to point to your installation of EDA tools and licensce files.${ENDC}"
-else
-    echo -e "${OK_COLOR}Site setup script already exists. Not checking for updates to avoid overwritng modifications."
-    echo -e "You may need to manually update it if there were changes upstream.${ENDC}"
 fi
 
 echo -e "${SUCCESS_COLOR}${BOLD}\n\nWALLY INSTALLATION SUCCESSFUL!!!\n\n${ENDC}"
