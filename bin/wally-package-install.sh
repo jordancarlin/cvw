@@ -56,7 +56,7 @@ case "$FAMILY" in
         PYTHON_VERSION=python3.12
         PACKAGE_MANAGER="dnf -y"
         UPDATE_COMMAND="$PACKAGE_MANAGER update"
-        GENERAL_PACKAGES+=(which "$PYTHON_VERSION" "$PYTHON_VERSION"-pip pkgconf-pkg-config gcc-c++ ssmtp)
+        GENERAL_PACKAGES+=(which "$PYTHON_VERSION" "$PYTHON_VERSION"-pip pkgconf-pkg-config gcc-c++)
         GNU_PACKAGES+=(libmpc-devel mpfr-devel gmp-devel zlib-devel expat-devel libslirp-devel ninja-build)
         QEMU_PACKAGES+=(glib2-devel libfdt-devel pixman-devel)
         SPIKE_PACKAGES+=(dtc boost-regex boost-system)
@@ -67,7 +67,9 @@ case "$FAMILY" in
             VERILATOR_PACKAGES+=(perl-doc)
         fi
         # A newer version of gcc is required for qemu
-        OTHER_PACKAGES+=(gcc-toolset-13)
+        if (( RHEL_VERSION < 10 )); then
+            THER_PACKAGES+=(gcc-toolset-13)
+        fi
         ;;
     ubuntu | debian)
         if (( UBUNTU_VERSION >= 24 )); then

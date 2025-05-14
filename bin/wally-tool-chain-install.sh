@@ -197,7 +197,7 @@ if (( UBUNTU_VERSION == 20 )); then
 fi
 
 # Enable newer version of gcc for older distros (required for QEMU/Verilator)
-if [ "$FAMILY" == rhel ]; then
+if [ "$FAMILY" == rhel ] && (( RHEL_VERSION < 10 )); then
     source /opt/rh/gcc-toolset-13/enable
 elif [ "$FAMILY" == suse ]; then
     mkdir -p "$RISCV"/gcc-13/bin
