@@ -101,8 +101,8 @@ $(DISASSEMBLY_DIR)/%.objdump: $(IMAGE_DIR)/% | $(DISASSEMBLY_DIR)
 
 # Disassemble binaries ending in .elf
 $(DISASSEMBLY_DIR)/%.objdump: $(IMAGE_DIR)/%.elf | $(DISASSEMBLY_DIR)
-	riscv64-unknown-elf-objdump -Sd $< >> $@
-	$(WALLY)/bin/extractFunctionRadix.sh $@
+	riscv64-unknown-elf-objdump -SD $<
+	# $(WALLY)/bin/extractFunctionRadix.sh $@
 
 # Load wally buildroot configuration
 config: $(BUILDROOT) $(BR2_EXTERNAL_TREE)/configs/wally_defconfig
