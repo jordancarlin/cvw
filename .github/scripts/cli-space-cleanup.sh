@@ -7,7 +7,6 @@
 ## Modified:
 ##
 ## Purpose: Remove unnecessary packages/directories from GitHub Actions runner
-
 ## A component of the CORE-V-WALLY configurable RISC-V project.
 ## https://github.com/openhwgroup/cvw
 ##
