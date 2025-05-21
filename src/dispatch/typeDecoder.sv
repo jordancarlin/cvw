@@ -1,10 +1,10 @@
 ///////////////////////////////////////////
-// dispatch.sv
+// typeDecoder.sv
 //
 // Written: Jordan Carlin jcarlin@hmc.edu
 // Created: 24 January 2025
 //
-// Purpose: Dispatch instructions to appropriate execution unit
+// Purpose: Determine appropriate execution unit for instruction
 // 
 // Documentation: RISC-V System on Chip Design
 //
@@ -27,10 +27,9 @@
 // and limitations under the License.
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-module dispatch import cvw::*;  #(parameter cvw_t P) (
-  input  logic        clk, reset,
-  input  logic [31:0] InstrD,                  // Instruction in Decode stage
-  output FpuOp, MduOp, AluOp, MemOp
+module typeDecoder import cvw::*;  #(parameter cvw_t P) (
+  input  logic [31:0] InstrD,
+  output logic        IEUOp, MDUOp, CryptoOp, FPUOp, MemOp, PrivOp
 );
 
   logic [6:0] OpD;
@@ -42,27 +41,28 @@ module dispatch import cvw::*;  #(parameter cvw_t P) (
   assign funct3 = InstrD[14:12];
 
   always_comb begin
-    {FpuOp, MduOp, AluOp, MemOp} = '0;
+    {IEUOp, MDUOp, CryptoOp, FPUOp, MemOp, PrivOp} = '0;
     /* verilator lint_off CASEINCOMPLETE */
     casez (OpD)
       7'b0?00011: MemOp = 1'b1; // load/store
-      7'b0?00111: FpuOp = 1'b1; // FP load/store
+      7'b0?00111: FPUOp = 1'b1; // FP load/store TODO: should this be FPUOp or MemOp? Probably Both
       7'b0?10?11: if (funct7 == 7'b0000001 & P.ZMMUL_SUPPORTED) // mul/div
-                    if (funct3[2] == 1'b1 & P.F_SUPPORTED & P.IDIV_ON_FPU) FpuOp = 1'b1; // div uses FPU
-                    else MduOp = 1'b1;
-                  else AluOp = 1'b1; // ALU I, R, or U type
-      7'b1100011: AluOp = 1'b1; // ALU B type
-      7'b110?111: AluOp = 1'b1; // ALU J type
+                    if (funct3[2] == 1'b1 & P.F_SUPPORTED & P.IDIV_ON_FPU) FPUOp = 1'b1; // div uses FPU
+                    else MDUOp = 1'b1;
+                  else IEUOp = 1'b1; // ALU I, R, or U type
+      7'b1100011: IEUOp = 1'b1; // ALU B type
+      7'b110?111: IEUOp = 1'b1; // ALU J type
       7'b0?11011: if (P.XLEN == 64) // RV64 ALU and MDU
                     if (funct7 == 7'b0000001 & P.ZMMUL_SUPPORTED) // mul/div
-                      if (funct3[2] == 1'b1 & P.M_SUPPORTED & P.IDIV_ON_FPU) FpuOp = 1'b1; // div uses FPU
-                      else MduOp = 1'b1;
-                    else AluOp = 1'b1; // ALU I, R, or U type
-      7'b100??11: if (P.F_SUPPORTED) FpuOp = 1'b1; // fma
-      7'b1010011: if (P.F_SUPPORTED) FpuOp = 1'b1; // FP ALU
+                      if (funct3[2] == 1'b1 & P.M_SUPPORTED & P.IDIV_ON_FPU) FPUOp = 1'b1; // div uses FPU
+                      else MDUOp = 1'b1;
+                    else IEUOp = 1'b1; // ALU I, R, or U type
+      7'b100??11: if (P.F_SUPPORTED) FPUOp = 1'b1; // fma
+      7'b1010011: if (P.F_SUPPORTED) FPUOp = 1'b1; // FP ALU
       7'b0001111: MemOp = 1'b1; // fence and CMO
       7'b0101111: MemOp = 1'b1; // AMO
-      // 7'b1110011: // privileged
+      7'b1110011: PrivOp = 1'b1; // privileged
+      default: IEUOp = 1'b1;
     endcase
     /* verilator lint_on CASEINCOMPLETE */
   end
