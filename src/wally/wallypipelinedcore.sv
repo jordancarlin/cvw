@@ -56,10 +56,13 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
   logic                          IntDivE, W64E;
   logic                          CSRReadM, CSRWriteM, PrivilegedM;
   logic [1:0]                    AtomicM;
-  logic [P.XLEN-1:0]             ForwardedSrcAE, ForwardedSrcBE;
+  logic [P.XLEN-1:0]             IEUForwardedSrcAE, IEUForwardedSrcBE;
+  logic [P.XLEN-1:0]             MDUForwardedSrcAE, MDUForwardedSrcBE;
+  logic [P.XLEN-1:0]             FPUForwardedSrcAE, FPUForwardedSrcBE;
   logic [P.XLEN-1:0]             SrcAM;
   logic [2:0]                    Funct3E;
   logic [31:0]                   InstrD;
+  logic [31:0]                   IEU0InstrD, IEU1InstrD, MDUInstrD, CryptoInstrD, FPUInstrD, MemInstrD, PrivInstrD;
   logic [31:0]                   InstrM, InstrOrigM;
   logic [P.XLEN-1:0]             PCSpillF, PCE, PCLinkE;
   logic [P.XLEN-1:0]             PCM;
@@ -174,7 +177,8 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
   logic                          FetchBufferStallF;
 
   // Dispatch signals
-  logic                          FpuOp, MduOp, AluOp, MemOp;
+  logic IEU0ValidD, IEU1ValidD, MDUValidD, CryptoValidD, FPUValidD, MemValidD, PrivValidD;
+  logic IEU0OrderD, IEU1OrderD, MDUOrderD, CryptoOrderD, FPUOrderD, MemOrderD, PrivOrderD;
 
   // instruction fetch unit: PC, branch prediction, instruction cache
   ifu #(P) ifu(.clk, .reset,
@@ -200,15 +204,18 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
     .PMPCFG_ARRAY_REGW,  .PMPADDR_ARRAY_REGW, .InstrAccessFaultF);
 
   // main decoder
-  dispatch #(P) dispatch (.clk, .reset, .InstrD, .FpuOp, .MduOp, .AluOp, .MemOp);
+  dispatch #(P) dispatch (.clk, .reset, .Instr1D(InstrD), .Instr2D(0),
+                          .IEU0ValidD, .IEU1ValidD, .MDUValidD, .CryptoValidD, .FPUValidD, .MemValidD, .PrivValidD, 
+                          .IEU0OrderD, .IEU1OrderD, .MDUOrderD, .CryptoOrderD, .FPUOrderD, .MemOrderD, .PrivOrderD,
+                          .IEU0InstrD, .IEU1InstrD, .MDUInstrD, .CryptoInstrD, .FPUInstrD, .MemInstrD, .PrivInstrD);
     
   // integer execution unit: integer register file, datapath and controller
   ieu #(P) ieu(.clk, .reset,
      // Decode Stage interface
-     .InstrD, .STATUS_FS, .ENVCFG_CBE, .IllegalIEUFPUInstrD, .IllegalBaseInstrD,
+     .InstrD(IEU0InstrD), .STATUS_FS, .ENVCFG_CBE, .IllegalIEUFPUInstrD, .IllegalBaseInstrD,
      // Execute Stage interface
      .PCE, .PCLinkE, .FWriteIntE, .FCvtIntE, .IEUAdrE, .IntDivE, .W64E,
-     .Funct3E, .ForwardedSrcAE, .ForwardedSrcBE, .MDUActiveE, .CMOpM, .IFUPrefetchE, .LSUPrefetchM,
+     .Funct3E, .IEUForwardedSrcAE, .IEUForwardedSrcBE, .MDUForwardedSrcAE, .MDUForwardedSrcBE, .FPUForwardedSrcAE, .FPUForwardedSrcBE, .MDUActiveE, .CMOpM, .IFUPrefetchE, .LSUPrefetchM,
      // Memory stage interface
      .SquashSCW,  // from LSU
      .MemRWE,     // read/write control goes to LSU
@@ -225,7 +232,7 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
      // hazards
      .StallD, .StallE, .StallM, .StallW, .FlushD, .FlushE, .FlushM, .FlushW,
      .StructuralStallD, .LoadStallD, .StoreStallD, .PCSrcE,
-     .CSRReadM, .CSRWriteM, .PrivilegedM, .CSRWriteFenceM, .InvalidateICacheM); 
+     .CSRReadM, .CSRWriteM, .PrivilegedM, .CSRWriteFenceM, .InvalidateICacheM, .FpuOp, .MduOp, .AluOp, .MemOp); 
 
   lsu #(P) lsu(
     .clk, .reset, .StallM, .FlushM, .StallW, .FlushW,
@@ -326,7 +333,7 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
   // multiply/divide unit
   if (P.ZMMUL_SUPPORTED) begin:mdu
     mdu #(P) mdu(.clk, .reset, .StallM, .StallW, .FlushE, .FlushM, .FlushW,
-      .ForwardedSrcAE, .ForwardedSrcBE, 
+      .ForwardedSrcAE(MDUForwardedSrcAE), .ForwardedSrcBE(MDUForwardedSrcBE), 
       .Funct3E, .Funct3M, .IntDivE, .W64E, .MDUActiveE,
       .MDUResultW, .DivBusyE); 
   end else begin // no M instructions supported
@@ -336,21 +343,19 @@ module wallypipelinedcore import cvw::*; #(parameter cvw_t P) (
 
   // floating point unit
   if (P.F_SUPPORTED) begin:fpu
-    logic [31:0] InstrDFpu;
-    assign InstrDFpu = FpuOp ? InstrD : '0;
     fpu #(P) fpu(
       .clk, .reset,
       .FRM_REGW,                           // Rounding mode from CSR
-      .InstrD(InstrDFpu),                  // instruction from IFU
+      .InstrD(FPUInstrD),                  // instruction from IFU
       .ReadDataW(ReadDataW[P.FLEN-1:0]),   // Read data from memory
-      .ForwardedSrcAE,                     // Integer input being processed (from IEU)
+      .ForwardedSrcAE(FPUForwardedSrcAE),  // Integer input being processed (from IEU)
       .StallE, .StallM, .StallW,           // stall signals from HZU
       .FlushE, .FlushM, .FlushW,           // flush signals from HZU
       .RdE, .RdM, .RdW,                    // which FP register to write to (from IEU)
       .STATUS_FS,                          // is floating-point enabled?
       .FRegWriteM,                         // FP register write enable
       .FpLoadStoreM,
-      .ForwardedSrcBE,                     // Integer input for intdiv
+      .ForwardedSrcBE(FPUForwardedSrcBE),  // Integer input for intdiv
       .Funct3E, .Funct3M, .IntDivE, .W64E, // Integer flags and functions
       .FPUStallD,                          // Stall the decode stage
       .FWriteIntE, .FCvtIntE,              // integer register write enable, conversion operation

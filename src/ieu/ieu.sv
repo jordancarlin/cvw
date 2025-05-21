@@ -43,7 +43,9 @@ module ieu import cvw::*;  #(parameter cvw_t P) (
   output logic [P.XLEN-1:0] IEUAdrE,                         // Memory address
   output logic              IntDivE, W64E,                   // Integer divide, RV64 W-type instruction 
   output logic [2:0]        Funct3E,                         // Funct3 instruction field
-  output logic [P.XLEN-1:0] ForwardedSrcAE, ForwardedSrcBE,  // ALU src inputs before the mux choosing between them and PCE to put in srcA/B
+  output logic [P.XLEN-1:0] IEUForwardedSrcAE, IEUForwardedSrcBE,  // ALU src inputs before the mux choosing between them and PCE to put in srcA/B
+  output logic [P.XLEN-1:0] MDUForwardedSrcAE, MDUForwardedSrcBE,  // MDU src inputs before the mux choosing between them and PCE to put in srcA/B
+  output logic [P.XLEN-1:0] FPUForwardedSrcAE, FPUForwardedSrcBE,  // FPU src inputs before the mux choosing between them and PCE to put in srcA/B
   output logic [4:0]        RdE,                             // Destination register
   output logic              MDUActiveE,                      // Mul/Div instruction being executed
   output logic [3:0]        CMOpM,                           // 1: cbo.inval; 2: cbo.flush; 4: cbo.clean; 8: cbo.zero
@@ -78,7 +80,8 @@ module ieu import cvw::*;  #(parameter cvw_t P) (
   output logic              LoadStallD,                      // Structural stalls for load, sent to performance counters
   output logic              StoreStallD,                     // load after store hazard
   output logic              CSRReadM, CSRWriteM, PrivilegedM,// CSR read, CSR write, is privileged instruction
-  output logic              CSRWriteFenceM                   // CSR write or fence instruction needs to flush subsequent instructions
+  output logic              CSRWriteFenceM,                   // CSR write or fence instruction needs to flush subsequent instructions
+  input logic FpuOp, MduOp, AluOp, MemOp
 );
 
   logic [2:0] ImmSrcD;                                       // Select type of immediate extension 
@@ -123,8 +126,8 @@ module ieu import cvw::*;  #(parameter cvw_t P) (
   datapath #(P) dp(
     .clk, .reset, .ImmSrcD, .InstrD, .Rs1D, .Rs2D, .Rs2E, .StallE, .FlushE, .ForwardAE, .ForwardBE, .W64E, .UW64E, .SubArithE,
     .Funct3E, .Funct7E, .ALUSrcAE, .ALUSrcBE, .ALUResultSrcE, .ALUSelectE, .JumpE, .BranchSignedE, 
-    .PCE, .PCLinkE, .FlagsE, .IEUAdrE, .ForwardedSrcAE, .ForwardedSrcBE, .BSelectE, .ZBBSelectE, .BALUControlE, .BMUActiveE, .CZeroE,
+    .PCE, .PCLinkE, .FlagsE, .IEUAdrE, .IEUForwardedSrcAE, .IEUForwardedSrcBE, .MDUForwardedSrcAE, .MDUForwardedSrcBE, .FPUForwardedSrcAE, .FPUForwardedSrcBE, .BSelectE, .ZBBSelectE, .BALUControlE, .BMUActiveE, .CZeroE,
     .StallM, .FlushM, .FWriteIntM, .FIntResM, .SrcAM, .WriteDataM, .FCvtIntW,
     .StallW, .FlushW, .RegWriteW, .IntDivW, .SquashSCW, .ResultSrcW, .ReadDataW, .FCvtIntResW,
-    .CSRReadValW, .MDUResultW, .FIntDivResultW, .RdW);             
+    .CSRReadValW, .MDUResultW, .FIntDivResultW, .RdW, .FpuOp, .MduOp, .AluOp, .MemOp);             
 endmodule
