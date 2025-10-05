@@ -70,7 +70,7 @@ endif
 
 # Use newer gcc version for older distros
 if ( -e $RISCV/gcc-13 ) then
-    prepend PATH $RISCV/gcc-13/bin # SUSE Family
+    prepend PATH $RISCV/gcc-13/bin # SUSE 15.6
 elseif ( -e $RISCV/gcc-10 ) then
     prepend PATH $RISCV/gcc-10/bin # Ubuntu 20.04 LTS
 endif

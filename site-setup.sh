@@ -78,7 +78,7 @@ fi
 if [ -e /opt/rh/gcc-toolset-13/enable ]; then
     source /opt/rh/gcc-toolset-13/enable # Red Hat Family 8 and 9
 elif [ -e "$RISCV"/gcc-13 ]; then
-    export PATH=$RISCV/gcc-13/bin:$PATH  # SUSE Family
+    export PATH=$RISCV/gcc-13/bin:$PATH  # SUSE 15.6
 elif [ -e "$RISCV"/gcc-10 ]; then
     export PATH=$RISCV/gcc-10/bin:$PATH  # Ubuntu 20.04 LTS
 fi
