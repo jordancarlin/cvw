@@ -792,6 +792,7 @@ end
               .CMP_CSR     (P.ZICSR_SUPPORTED)
               ) idv_trace2api(rvvi);
   trace2log idv_trace2log(rvvi); // enable Imperas tracer
+  trace2text idv_trace2text(rvvi); // enable Imperas RVVI-text tracer
 
   string filename;
   initial begin
