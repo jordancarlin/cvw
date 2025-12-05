@@ -181,7 +181,13 @@ else
         if curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 sh 2>/dev/null; then
             # Move uv to RISCV bin directory
             mkdir -p "$RISCV/bin"
-            mv ~/.local/bin/uv "$RISCV/bin/" 2>/dev/null || mv /root/.local/bin/uv "$RISCV/bin/" 2>/dev/null || true
+            if [ -f ~/.local/bin/uv ]; then
+                mv ~/.local/bin/uv "$RISCV/bin/"
+            elif [ -f /root/.local/bin/uv ]; then
+                mv /root/.local/bin/uv "$RISCV/bin/"
+            else
+                echo -e "${FAIL_COLOR}uv binary not found after installation${ENDC}" && exit 1
+            fi
             chmod 755 "$RISCV/bin/uv"
             echo -e "${SUCCESS_COLOR}uv successfully installed via standalone installer to $RISCV/bin!${ENDC}"
         else
@@ -190,7 +196,13 @@ else
             "$PYTHON_VERSION" -m pip install --user uv
             # Copy uv from user installation to RISCV bin
             mkdir -p "$RISCV/bin"
-            cp ~/.local/bin/uv "$RISCV/bin/" 2>/dev/null || cp /root/.local/bin/uv "$RISCV/bin/" 2>/dev/null || true
+            if [ -f ~/.local/bin/uv ]; then
+                cp ~/.local/bin/uv "$RISCV/bin/"
+            elif [ -f /root/.local/bin/uv ]; then
+                cp /root/.local/bin/uv "$RISCV/bin/"
+            else
+                echo -e "${FAIL_COLOR}uv binary not found after pip installation${ENDC}" && exit 1
+            fi
             chmod 755 "$RISCV/bin/uv"
             echo -e "${SUCCESS_COLOR}uv successfully installed via pip to $RISCV/bin!${ENDC}"
         fi

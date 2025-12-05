@@ -32,7 +32,7 @@ make synth DESIGN=wallypipelinedcore FREQ=500 CONFIG=rv32e
 ## Extra Tool (PPA)
 
 To run ppa analysis that hones into target frequency, you can type:
-`ppa/ppaSynth.py` from the synthDC directory.  This runs a sweep
+`./ppa/ppaSynth.py` from the synthDC directory.  This runs a sweep
 across all modules listed at the bottom of the `ppaSynth.py` file.
 
 Two options for running the sweep.  The first run runs all modules for
