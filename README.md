@@ -45,7 +45,7 @@ Then fork and clone the repo, source setup, make the tests and run regression
 > [!NOTE]
 > If you are installing on a new system without any tools installed, please jump to the next section, [Toolchain Installation](#toolchain-installation-and-configuration-sys-admin), then come back here.
 
-7. Run the setup script to update your `PATH` and activate the python virtual environment.
+7. Run the setup script to update your `PATH` and activate the Python virtual environment (managed by uv).
 
   ```bash
   $ source ./setup.sh

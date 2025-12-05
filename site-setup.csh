@@ -38,7 +38,7 @@ extend LD_LIBRARY_PATH $RISCV/lib64
 extend LD_LIBRARY_PATH $RISCV/lib/x86_64-linux-gnu/
 extend PATH $RISCV/bin
 
-# Activate riscv-python Virtual Environment
+# Activate riscv-python Virtual Environment (managed by uv)
 if ( -e "$RISCV"/riscv-python/bin/activate ) then
     source "$RISCV"/riscv-python/bin/activate.csh
 else

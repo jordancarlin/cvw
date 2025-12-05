@@ -41,23 +41,28 @@ if [ -z "$FAMILY" ]; then
     source "${dir}"/../wally-environment-check.sh
 fi
 
-# Create python virtual environment so the python command targets desired version of python
+# Create python virtual environment using uv so the python command targets desired version of python
 # and installed packages are isolated from the rest of the system.
-section_header "Setting up Python Environment"
+section_header "Setting up Python Environment with uv"
 STATUS="python_virtual_environment"
 cd "$RISCV"
+
+# Create or update the virtual environment using uv
 if [ ! -e "$RISCV"/riscv-python/bin/activate ]; then
-    "$PYTHON_VERSION" -m venv riscv-python --prompt cvw
-    echo -e "${OK_COLOR}Python virtual environment created!\nInstalling pip packages.${ENDC}"
+    echo -e "${OK_COLOR}Creating Python virtual environment with uv.${ENDC}"
+    uv venv riscv-python --python "$PYTHON_VERSION" --prompt cvw
+    echo -e "${OK_COLOR}Python virtual environment created!\nInstalling packages.${ENDC}"
 else
-    echo -e "${OK_COLOR}Python virtual environment already exists.\nUpdating pip packages.${ENDC}"
+    echo -e "${OK_COLOR}Python virtual environment already exists.\nUpdating packages.${ENDC}"
 fi
 
-source "$RISCV"/riscv-python/bin/activate # activate python virtual environment
+# Activate the virtual environment
+source "$RISCV"/riscv-python/bin/activate
 
-# Install python packages, including RISCOF (https://github.com/riscv-software-src/riscof.git)
-# RISCOF is a RISC-V compliance test framework that is used to run the RISC-V Arch Tests.
+# Install python packages using uv
+# uv sync will install all dependencies from pyproject.toml
 STATUS="python packages"
-pip --require-virtualenv install --upgrade pip && pip --require-virtualenv install --upgrade -r "$WALLY"/bin/requirements.txt
+cd "$WALLY"
+uv pip install --upgrade -r "$WALLY"/bin/requirements.txt
 
 echo -e "${SUCCESS_COLOR}Python environment successfully configured!${ENDC}"

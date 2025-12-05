@@ -1,0 +1,35 @@
+# pyproject.toml
+# Python project configuration for CVW using uv
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+
+[project]
+name = "cvw"
+version = "0.1.0"
+description = "CORE-V-WALLY RISC-V processor project"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "adjustText>=1.2",
+    "lief>=0.14.1",
+    "Markdown>=3.6",
+    "matplotlib>=3.9.0",
+    "pre-commit>=4.0.0",
+    "PyYAML>=5.2",
+    # Note: riscof, riscv-config, and riscv-isac are installed separately via uv pip
+    # with environment variables for commit hashes (see python-setup.sh)
+    "scikit-learn>=1.5.0",
+    "scipy>=1.13.0",
+    "setuptools",
+    "Sphinx~=7.3.7",  # QEMU fails to build with Sphinx 8
+    "sphinx-rtd-theme>=2.0.0",
+    "testresources>=2.0.1",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.uv]
+# Use the system-managed Python by default (allows PYTHON_VERSION to be set externally)
+# uv will create a virtual environment at .venv by default
+managed = false  # Don't manage Python installations, use system Python

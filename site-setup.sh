@@ -47,7 +47,7 @@ export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+${LD_LIBRARY_PATH}:}$RISCV/riscv64-unk
 export LD_LIBRARY_PATH=$RISCV/lib:$RISCV/lib64:$LD_LIBRARY_PATH:$RISCV/lib/x86_64-linux-gnu/
 export PATH=$PATH:$RISCV/bin
 
-# Activate riscv-python Virtual Environment
+# Activate riscv-python Virtual Environment (managed by uv)
 if [ -e "$RISCV"/riscv-python/bin/activate ]; then
     source "$RISCV"/riscv-python/bin/activate
 else

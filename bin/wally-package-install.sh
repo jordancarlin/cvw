@@ -129,6 +129,13 @@ if [ "${1}" == "--check" ]; then
             dpkg -l "$pack" | grep "ii" > /dev/null || (echo -e "${FAIL_COLOR}Missing packages detected (${WARNING_COLOR}$pack${FAIL_COLOR}). Run as root to auto-install or run wally-package-install.sh first." && exit 1)
         done
     fi
+    
+    # Check if uv is installed
+    if [ ! -e "$RISCV/bin/uv" ]; then
+        echo -e "${FAIL_COLOR}uv is not installed at $RISCV/bin/uv. Run as root to auto-install or run wally-package-install.sh first.${ENDC}"
+        exit 1
+    fi
+    
     echo -e "${OK_COLOR}All required packages detected.${ENDC}"
 else
     # Check if root, otherwise exit with error message
@@ -164,6 +171,31 @@ else
         lib_dir=$(gcc -dumpmachine)
         ln -vsf /lib/"$lib_dir"/libncurses.so.6 /lib/"$lib_dir"/libncurses.so.5
         ln -vsf /lib/"$lib_dir"/libtinfo.so.6 /lib/"$lib_dir"/libntinfo.so.5
+    fi
+
+    # Install uv for Python package management
+    # Install to $RISCV/bin so it's available to all users and already in PATH
+    if [ ! -e "$RISCV/bin/uv" ]; then
+        echo -e "${OK_COLOR}Installing uv for Python package management...${ENDC}"
+        # Try the standalone installer first (faster and recommended)
+        if curl -LsSf https://astral.sh/uv/install.sh | env INSTALLER_NO_MODIFY_PATH=1 sh 2>/dev/null; then
+            # Move uv to RISCV bin directory
+            mkdir -p "$RISCV/bin"
+            mv ~/.local/bin/uv "$RISCV/bin/" 2>/dev/null || mv /root/.local/bin/uv "$RISCV/bin/" 2>/dev/null || true
+            chmod 755 "$RISCV/bin/uv"
+            echo -e "${SUCCESS_COLOR}uv successfully installed via standalone installer to $RISCV/bin!${ENDC}"
+        else
+            # Fall back to pip installation if standalone installer fails (e.g., network restrictions)
+            echo -e "${WARNING_COLOR}Standalone installer failed, trying pip installation...${ENDC}"
+            "$PYTHON_VERSION" -m pip install --user uv
+            # Copy uv from user installation to RISCV bin
+            mkdir -p "$RISCV/bin"
+            cp ~/.local/bin/uv "$RISCV/bin/" 2>/dev/null || cp /root/.local/bin/uv "$RISCV/bin/" 2>/dev/null || true
+            chmod 755 "$RISCV/bin/uv"
+            echo -e "${SUCCESS_COLOR}uv successfully installed via pip to $RISCV/bin!${ENDC}"
+        fi
+    else
+        echo -e "${OK_COLOR}uv is already installed at $RISCV/bin/uv.${ENDC}"
     fi
 
     echo -e "${SUCCESS_COLOR}Packages successfully installed.${ENDC}"
