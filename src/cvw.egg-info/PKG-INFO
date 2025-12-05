@@ -1,3 +1,24 @@
+Metadata-Version: 2.4
+Name: cvw
+Version: 0.1.0
+Summary: CORE-V-WALLY RISC-V processor project
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: adjustText>=1.2
+Requires-Dist: lief>=0.14.1
+Requires-Dist: Markdown>=3.6
+Requires-Dist: matplotlib>=3.9.0
+Requires-Dist: pre-commit>=4.0.0
+Requires-Dist: PyYAML>=5.2
+Requires-Dist: scikit-learn>=1.5.0
+Requires-Dist: scipy>=1.13.0
+Requires-Dist: setuptools
+Requires-Dist: Sphinx~=7.3.7
+Requires-Dist: sphinx-rtd-theme>=2.0.0
+Requires-Dist: testresources>=2.0.1
+Dynamic: license-file
+
 [![Installation CI](https://github.com/openhwgroup/cvw/actions/workflows/install.yml/badge.svg?branch=main)](https://github.com/openhwgroup/cvw/actions/workflows/install.yml)
 
 # core-v-wally
@@ -45,7 +66,7 @@ Then fork and clone the repo, source setup, make the tests and run regression
 > [!NOTE]
 > If you are installing on a new system without any tools installed, please jump to the next section, [Toolchain Installation](#toolchain-installation-and-configuration-sys-admin), then come back here.
 
-7. Run the setup script to update your `PATH`. Python scripts can be run directly (e.g., `./script.py`) as they use `uv` via their shebang.
+7. Run the setup script to update your `PATH`. Python scripts will be run using `uv run` which manages the Python environment automatically.
 
   ```bash
   $ source ./setup.sh

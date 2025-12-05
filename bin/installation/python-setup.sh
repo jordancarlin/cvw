@@ -41,23 +41,21 @@ if [ -z "$FAMILY" ]; then
     source "${dir}"/../wally-environment-check.sh
 fi
 
-# Create python virtual environment so the python command targets desired version of python
-# and installed packages are isolated from the rest of the system.
-section_header "Setting up Python Environment"
-STATUS="python_virtual_environment"
-cd "$RISCV"
-if [ ! -e "$RISCV"/riscv-python/bin/activate ]; then
-    "$PYTHON_VERSION" -m venv riscv-python --prompt cvw
-    echo -e "${OK_COLOR}Python virtual environment created!\nInstalling pip packages.${ENDC}"
-else
-    echo -e "${OK_COLOR}Python virtual environment already exists.\nUpdating pip packages.${ENDC}"
-fi
+# Set up Python environment using uv
+# uv manages the virtual environment automatically - no need to activate it manually
+section_header "Setting up Python Environment with uv"
+STATUS="python_environment"
+cd "$WALLY"
 
-source "$RISCV"/riscv-python/bin/activate # activate python virtual environment
+# Sync all Python dependencies from pyproject.toml
+# uv sync creates/updates a .venv in the project directory automatically
+echo -e "${OK_COLOR}Installing Python packages with uv...${ENDC}"
+uv sync --python "$PYTHON_VERSION"
 
-# Install python packages, including RISCOF (https://github.com/riscv-software-src/riscof.git)
-# RISCOF is a RISC-V compliance test framework that is used to run the RISC-V Arch Tests.
-STATUS="python packages"
-pip --require-virtualenv install --upgrade pip && pip --require-virtualenv install --upgrade -r "$WALLY"/bin/requirements.txt
+# Install additional packages from requirements.txt that have environment variable substitutions
+# These can't be in pyproject.toml directly due to the ${VARIABLE} syntax
+STATUS="python_packages"
+uv pip install -r "$WALLY"/bin/requirements.txt
 
 echo -e "${SUCCESS_COLOR}Python environment successfully configured!${ENDC}"
+echo -e "${OK_COLOR}Use 'uv run <script>' to run Python scripts or 'uv tool run <tool>' for standalone tools.${ENDC}"

@@ -90,10 +90,15 @@ dev libexpat-dev autoconf device-tree-compiler ninja-build libpixman-1-dev build
 dev python3-pip pkg-config libglib2.0-dev opam  build-essential z3 pkg-config zl
 ib1g-dev verilator cpio bc vim emacs gedit nano
 
-RUN pip3 install chardet==3.0.4
-RUN pip3 install urllib3==1.22
-RUN pip3 install testresources
-RUN pip3 install riscof --ignore-installed PyYAML
+# Install uv for Python package management
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
+
+# Install Python packages using uv
+RUN uv pip install --system chardet==3.0.4
+RUN uv pip install --system urllib3==1.22
+RUN uv pip install --system testresources
+RUN uv pip install --system riscof --ignore-installed PyYAML
 RUN echo "root:wally" | chpasswd
 
 # ADD RISCV
