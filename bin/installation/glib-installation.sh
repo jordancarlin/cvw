@@ -41,12 +41,14 @@ fi
 STATUS="glib"
 if [ ! -e "$RISCV"/include/glib-2.0 ]; then
     section_header "Installing glib"
-    uv pip install -U meson # Meson is needed to build glib
+    # Install meson as a uv tool (makes it available in PATH)
+    cd "$WALLY" && uv tool install meson
     cd "$RISCV"
     wget -nv --retry-connrefused $retry_on_host_error https://download.gnome.org/sources/glib/2.70/glib-2.70.5.tar.xz
     tar -xJf glib-2.70.5.tar.xz
     rm -f glib-2.70.5.tar.xz
     cd glib-2.70.5
+    # meson is now available in PATH after uv tool install
     meson setup _build --prefix="$RISCV"
     meson compile -C _build -j "${NUM_THREADS}" 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]
     meson install -C _build 2>&1 | logger; [ "${PIPESTATUS[0]}" == 0 ]

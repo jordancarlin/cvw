@@ -1,0 +1,8 @@
+LICENSE
+README.md
+pyproject.toml
+src/cvw.egg-info/PKG-INFO
+src/cvw.egg-info/SOURCES.txt
+src/cvw.egg-info/dependency_links.txt
+src/cvw.egg-info/requires.txt
+src/cvw.egg-info/top_level.txt

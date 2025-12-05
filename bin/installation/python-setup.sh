@@ -41,28 +41,21 @@ if [ -z "$FAMILY" ]; then
     source "${dir}"/../wally-environment-check.sh
 fi
 
-# Create python virtual environment using uv so the python command targets desired version of python
-# and installed packages are isolated from the rest of the system.
+# Set up Python environment using uv
+# uv manages the virtual environment automatically - no need to activate it manually
 section_header "Setting up Python Environment with uv"
-STATUS="python_virtual_environment"
-cd "$RISCV"
-
-# Create or update the virtual environment using uv
-if [ ! -e "$RISCV"/riscv-python/bin/activate ]; then
-    echo -e "${OK_COLOR}Creating Python virtual environment with uv.${ENDC}"
-    uv venv riscv-python --python "$PYTHON_VERSION" --prompt cvw
-    echo -e "${OK_COLOR}Python virtual environment created!\nInstalling packages.${ENDC}"
-else
-    echo -e "${OK_COLOR}Python virtual environment already exists.\nUpdating packages.${ENDC}"
-fi
-
-# Activate the virtual environment
-source "$RISCV"/riscv-python/bin/activate
-
-# Install python packages using uv
-# uv sync will install all dependencies from pyproject.toml
-STATUS="python packages"
+STATUS="python_environment"
 cd "$WALLY"
-uv pip install --upgrade -r "$WALLY"/bin/requirements.txt
+
+# Sync all Python dependencies from pyproject.toml
+# uv sync creates/updates a .venv in the project directory automatically
+echo -e "${OK_COLOR}Installing Python packages with uv...${ENDC}"
+uv sync --python "$PYTHON_VERSION"
+
+# Install additional packages from requirements.txt that have environment variable substitutions
+# These can't be in pyproject.toml directly due to the ${VARIABLE} syntax
+STATUS="python_packages"
+uv pip install -r "$WALLY"/bin/requirements.txt
 
 echo -e "${SUCCESS_COLOR}Python environment successfully configured!${ENDC}"
+echo -e "${OK_COLOR}Use 'uv run <script>' to run Python scripts or 'uv tool run <tool>' for standalone tools.${ENDC}"

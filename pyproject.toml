@@ -30,6 +30,5 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.uv]
-# Use the system-managed Python by default (allows PYTHON_VERSION to be set externally)
-# uv will create a virtual environment at .venv by default
-managed = false  # Don't manage Python installations, use system Python
+# Allow uv to manage the virtual environment
+# uv will create a .venv in the project directory automatically

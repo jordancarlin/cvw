@@ -22,9 +22,10 @@ __pycache__/
 /**/obj_dir*
 /**/gmon*
 
-# Python/uv cache
-.venv/
+# Python/uv
+.venv/  # uv creates .venv in project directory
 uv.lock  # Generated lock file - not committed for this project
+*.egg-info/  # Python package metadata
 
 # Tests
 tests/riscof/config32.ini
