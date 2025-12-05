@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run python3
 # Madeleine Masser-Frye (mmmasserfrye@hmc.edu) 06/2022
 import argparse
 import csv

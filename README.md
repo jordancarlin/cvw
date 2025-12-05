@@ -45,7 +45,7 @@ Then fork and clone the repo, source setup, make the tests and run regression
 > [!NOTE]
 > If you are installing on a new system without any tools installed, please jump to the next section, [Toolchain Installation](#toolchain-installation-and-configuration-sys-admin), then come back here.
 
-7. Run the setup script to update your `PATH`. Python scripts will be run using `uv run` which manages the Python environment automatically.
+7. Run the setup script to update your `PATH`. Python scripts can be run directly (e.g., `./script.py`) as they use `uv` via their shebang.
 
   ```bash
   $ source ./setup.sh
