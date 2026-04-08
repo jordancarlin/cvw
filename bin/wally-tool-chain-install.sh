@@ -61,6 +61,11 @@ source "$WALLY"/bin/installation/uv-install.sh
 source "${WALLY}"/bin/installation/activate-tools.sh
 
 
+# Clang/LLVM (https://llvm.org/)
+# Clang is a C/C++ compiler built on LLVM.
+source "$WALLY"/bin/installation/clang-install.sh
+
+
 # Newer version of glib required for QEMU.
 # Used for all installed tools because mixing glib versions can cause issues.
 if (( RHEL_VERSION == 8 )) || (( UBUNTU_VERSION == 20 )); then
